@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Car</h2>
+
+<div class="law">
+<h1>The Law of Car</h1>
+<p class="lead">The primitive <span class="serif">car</span> is defined only for non-empty lists.</p>
+</div>
+
+<form action="/talk/" method="post" style="margin: 60px 0px 100px 0px;">
+  {% csrf_token %}
+
+<table>
+
+<tr>
+<td>
+  <textarea id="inputbox" name="code">
+(begin
+
+(car (quote (a b c)))
+(car (quote ((a b c) x y z)))
+(car (quote dumpling))
+(car (quote ()))
+(car (quote (((dumplings)) (and) (pickle) relish)))
+(quote (car (quote (((dumplings)) (and) (pickle) relish))))
+(car (car (quote (((dumplings)) (and)))))
+
+)</textarea>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("inputbox"), {lineNumbers: true, tabSize: 2});
+</script>
+</td>
+
+<td style="text-align: right; vertical-align: bottom;">
+  
+<input id="evalbutton" class="btn btn-large btn-success" type="submit" value="Begin Talking!" type="button">
+<img style="margin-top: 30px;" src="/static/talk.jpg" >
+</td>
+
+</tr>
+</table>
+</form>
+
+
+
+{% endblock %}

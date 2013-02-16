@@ -1,0 +1,271 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+<div class="describe">
+
+<h1>Think Recursively, Easily.</h1>
+<p><a href="#little">The Little Schemer</a> is a book teaching you to think recursively. The way to use it is to read a question, think about the question, and come up with an answer.</p>
+
+<p><a href="#start">The Vivid Schemer</a> turns the Q&amp;As in black and white into a live conversation on the screen, which can guide you to think in the right path.</p>
+
+
+
+<p>If you are not yet familiar with Scheme, use this <a href="#guide">guide</a>. 
+
+<p>You can also <a href="#embed">embed</a> the Vivid Schemer in your web page.</p>
+
+<div style="text-align: right;"><img src="/static/logo2.jpg"></div>
+
+</div>
+
+
+<hr>
+
+<h2 id="start">What's the answer to Life, the Universe and Everything?</h2>
+
+
+{% include "input.html" %}
+
+
+
+
+<hr>
+<h2 id="embed">Embed</h2>
+
+
+<img src="/static/love.jpg" style="float: right;margin-top: 200px;">
+
+<p>Insert your code and press <b>generate</b>, then copy the generated code to your site.</p>
+
+<div style="width:700px;">
+<textarea id="embedbox" name="code">
+</textarea>
+</div>
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("embedbox"), {lineNumbers: true, tabSize: 2});
+function genEmbed() {
+   var code = editor.getValue() 
+   var genCode = document.getElementById("embedoutput");
+   genCode.value = ("<iframe width=\"500\" height=\"400\" frameborder=\"0\" src=\"http://vivid.chengyichao.info/embed/?code=" + encodeURIComponent(code) + "\"></iframe>");
+
+}
+</script>
+
+<form class="input-inline">
+<input id="genbutton" class="btn btn-medium btn-default" value="generate" type="button" onclick="genEmbed();return false;">
+<input type="text" id="embedoutput" style="height: 30px;margin:0px; width: 520px;">
+</form>
+
+
+
+
+
+
+<hr>
+<h2 id="little">The Little Schemer</h2>
+
+<div style="text-align: center;">
+<a href="http://www.ccs.neu.edu/home/matthias/BTLS/"><img src="/static/little.jpg"></a>
+</div>
+
+
+
+<div class="row-fluid" id="toc">
+<span class="span6">
+  <h4>1 Toys</h4>
+  <ul>
+  <li><a href="/car/">car</a></li>
+  <li><a href="/cdr/">cdr</a></li>
+  <li><a href="/cons/">cons</a></li>
+  <li><a href="/null/">null?</a></li>
+  <li><a href="/atom/">atom?</a></li>
+  <li><a href="/eq/">eq?</a></li>
+  </ul>
+
+
+  <h4>3 Cons the Magnificent</h4>
+  <ul>
+    <li><a href="/rember/">rember</a></li>
+    <li><a href="/firsts/">firsts</a></li>
+    <li><a href="/insertR/">insertR</a></li>
+    <li><a href="/insertL/">insertL</a></li>
+    <!--
+        <li><a href="/subst2/">subst2</a></li>
+    <li><a href="/multirember/">multirember</a></li>
+    <li><a href="/multiinsertR/">multiinsertR</a></li>
+    <li><a href="/multiinsertL/">multiinsertL</a></li>-->
+
+  </ul>
+  
+
+  <h4>5 *Oh My Gawd*: It's Full of Stars</h4>
+  
+  <ul>
+    <li><a href="/rembers/">rember*</a></li>
+  </ul>
+
+
+  <h4>7 Friends and Relations</h4>
+  <ul>
+    <li><a href="/set/">set?</a></li>
+    <li><a href="/makeset/">makeset</a></li>
+    <li><a href="/subset/">subset?</a></li>
+    <li><a href="/intersect/">intersect</a></li>
+    <li><a href="/union/">union</a></li>
+    <li><a href="/xxx/">xxx</a></li>
+    <li><a href="/a-pair?/">a-pair?</a></li>
+    <li><a href="/fun?/">fun?</a></li>
+
+  </ul>
+
+
+  <h4>9 ... and Again, and Again, and Again, ...</h4>
+  <ul>
+    <li><a href="/eternity/">eternity</a></li>
+    <li><a href="/will-stop/">will-stop?</a></li>
+    <li><a href="/length1/">length1</a></li>
+    <li><a href="/mk-length/">mk-length</a></li>
+  </ul>
+
+  <h4>Others</h4>
+  <ul>
+  <li><a href="/commandments/">Commandments</a></li>
+  </ul>
+</span> 
+
+
+
+
+<span class="span6">
+  <h4>2 Do It, Do It Again, and Again, and Again</h4>
+  <ul>
+    <li><a href="/lat/">lat?</a></li>
+    <li><a href="/member/">member?</a></li>
+  </ul>
+
+  <h4>4 Numbers Games</h4>
+  <ul>
+    <li><a href="/add/">+</a></li>
+    <li><a href="/sub/">-</a></li>
+    <li><a href="/mult/">×</a></li>
+    <li><a href="/tupadd/">tup+</a></li>
+    <li><a href="/gt/">&gt;</a></li>
+    <li><a href="/lt/">&lt;</a></li>
+    <li><a href="/eq2/">=</a></li>
+    <li><a href="/expt/">&uarr;</a></li>
+    <li><a href="/div/">÷</a></li>
+    <li><a href="/length/">length</a></li>
+    <li><a href="/pick/">pick</a></li>
+    <li><a href="/rempick/">rempick</a></li>
+    <li><a href="/no-nums/">no-nums</a></li>
+  </ul>
+
+
+  <h4>6 Shadows</h4>
+  <ul>
+    <li><a href="/numbered/">numbered?</a></li>
+    <li><a href="/value/">value</a></li>
+    <li><a href="/value2/">value2</a></li>
+    <li><a href="/add2/">+</a></li>
+
+  </ul>
+
+  <h4>8 Lambda the Ultimate</h4>
+  <ul>
+    <li><a href="rember-f">rember-f</a></li>
+    <li><a href="eq-c">eq?-c</a></li>
+    <li><a href="insertL-f">insertL-f</a></li>
+    <li><a href="insert-g">insert-g</a></li>
+  </ul>
+
+  <h4>10 What Is the Value of All of This?</h4>
+</span>
+
+
+</div>
+
+<hr>
+
+<img src="/static/frighten.jpg" style="float: right;width: 140px;">
+<h2 id="guide">A Quick Guide to Scheme</h2>
+
+<p style="width: 700px;">Don't worry if you didn't know very much about Scheme. Learning only a small part of it is enough to play with <a href="#start">The Vivid Schemer</a>.</p>
+
+
+
+
+<h3>Syntax</h3>
+<table id="syntax-table" class="table table-bordered">
+<tr>
+  <th>Example</th>
+  <th>Semantics</th>
+</tr>
+
+<tr>
+  <td class="codestyle number">17</td>
+  <td><span class="codestyle number">17</span> is a number.</td>
+</tr>
+
+<tr>
+  <td class="codestyle"><span class="p">(</span><span class="keyword">quote</span> <span class="p">(</span>yesterday once more<span class="p">))</span></span></td>
+  <td>Return the <span class="codestyle"><span class="p">(</span>yesterday once more<span class="p">)</span></span> literally without evaluating it.</td>
+</tr>
+
+
+<tr>
+  <td class="codestyle"><span class="p">(</span><span class="keyword">cond</span> <span class="p">((</span>< <span class="number">2</span> <span class="number">1</span><span class="p">)</span> <span class="boolean">#t</span><span class="p">)</span> <span class="p">(</span><span class="keyword">else</span> <span class="codestyle boolean">#f</span><span class="p">))</span></td>
+  <td>Ask the first question <span class="codestyle"><span class="p">(</span>< <span class="number">2</span> <span class="number">1</span><span class="p">)</span></span>. If the answer is true, evaluate the expression <span class="codestyle boolean">#t</span>. Otherwise, ask the second question <span class="codestyle keyword">else</span>. Else is always true, so return the value of evaluating <span class="codestyle boolean">#f</span>. 
+</tr>
+
+
+<tr>
+  <td class="codestyle"><span class="p">(</span><span class="keyword">define</span> square <span class="p">(</span><span class="keyword">lambda</span> <span class="p">(</span>x<span class="p">)</span> <span class="p">(</span>* x x<span class="p">)))</span></td>
+  <td>Define a new variable <span class="codestyle">square</span> and give it the value of evaluating the expression <span class="codestyle"><span class="p">(</span><span class="keyword">lambda</span> <span class="p">(</span>x<span class="p">)</span> <span class="p">(</span>* x x<span class="p">)))</span></span>. </td>
+</tr>
+
+
+<tr>
+  <td class="codestyle"><span class="p">(</span><span class="keyword">lambda</span> <span class="p">(</span>r<span class="p">)</span> <span class="p">(</span>* <span class="number">3.14</span> <span class="p">(</span>* r r<span class="p">)))</span></td>
+  <td>Create a function with a parameter named <span class="codestyle">r</span> and the expression <span class="codestyle"><span class="p">(</span>* <span class="number">3.14</span> <span class="p">(</span>* r r<span class="p">)))</span></span> as body.</td>
+</tr>
+
+<tr>
+  <td class="codestyle"><span class="p">(</span><span class="keyword">begin</span> <span class="p">(</span>...<span class="p">)</span> <span class="p">(</span>...<span class="p">))</span></td>
+  <td>Evaluate expressions in left-to-right order, and return the final value.</td>
+</tr>
+
+
+
+<tr>
+
+  <td class="codestyle"><span class="p">(</span>square <span class="number">12</span><span class="p">)</span></td>
+  <td>Call a function named <span class="codestyle">square</span> with <span class="codestyle number">12</span> as the parameter.</td>
+</tr>
+
+
+
+</table>
+
+<h3 id="primitives">More Examples</h3>
+
+
+
+<ul>
+<li><a href="factorial">factorial(recursive)</a></li>
+<li><a href="factorial-iter">factorial(iterative)</a></li>
+<li><a href="map">map</a></li>
+</ul>
+
+
+
+
+
+<hr>
+<h2>But what is "thinking recursively"?</h2>
+
+
+<img src="/static/brain.jpg" style="margin: 40px;">
+
+
+{% endblock %}

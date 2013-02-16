@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>No-nums</h2>
+
+
+<form action="/talk/" method="post" style="margin: 60px 0px 100px 0px;">
+  {% csrf_token %}
+
+
+<p class="lead">Remove all the numbers from thelat.</p>
+
+<table>
+
+
+<tr>
+<td>
+  <textarea id="inputbox" name="code">
+(begin
+
+(define no-nums
+  (lambda (lat)
+    (cond
+      ((null? lat) (quote ())) 
+      (else (cond
+              ((number? (car lat))
+               (no-nums (cdr lat)))
+              (else (cons (car lat)
+                      (no-nums
+                        (cdr lat)))))))))
+
+(no-nums (quote (egg 4 fried 9 rice)))
+
+)</textarea>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("inputbox"), {lineNumbers: true, tabSize: 2});
+</script>
+
+</td>
+
+<td style="text-align: right; vertical-align: bottom;">
+  
+<input id="evalbutton" class="btn btn-large btn-success" type="submit" value="Begin Talking!" type="button">
+<img style="margin-top: 30px;" src="/static/talk.jpg" >
+</td>
+
+</tr>
+
+
+
+
+
+</table>
+
+
+<img src="http://ww4.sinaimg.cn/large/534218ffjw1dzvtk5da2nj.jpg">
+
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

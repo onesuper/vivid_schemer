@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Rember-f</h2>
+
+
+<div class="law">
+<h1>The Ninth Commandment</h1>
+
+<p class="lead">Abstract common patterns with a few new function.</p>
+</div>
+
+
+<form action="/talk/" method="post" style="margin: 60px 0px 100px 0px;">
+  {% csrf_token %}
+
+
+<table>
+
+<tr>
+<td>
+  <textarea id="inputbox" name="code" style="height:530px;">
+(begin
+
+(define rember-f
+  (lambda (test? a lat)
+    (cond 
+      ((null? lat) (quote ()))
+      (else (cond
+              ((test? (car lat) a) (cdr lat))
+              (else (cons (car lat)
+                       (rember-f test? a
+                         (cdr lat)))))))))
+            
+(rember-f = 2 (quote (1 2 3)))
+
+)</textarea>
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("inputbox"), {lineNumbers: true, tabSize: 2});
+</script>
+</td>
+
+<td style="text-align: right; vertical-align: bottom;">
+  
+<input id="evalbutton" class="btn btn-large btn-success" type="submit" value="Begin Talking!" type="button">
+<img style="margin-top: 30px;" src="/static/talk.jpg" >
+</td>
+
+</tr>
+</table>
+
+
+</form>
+
+
+
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,35 @@
+
+{% extends "layout_embed.html" %}
+
+
+
+{% block content %}
+
+
+
+<div id="outputbox">
+
+
+
+  <div id="statement"></div>
+  <div id="speech"></div>
+
+  
+  <div style="text-align: center">
+    <h4 id="helper">Press this button or right arrow</h4>
+    <input id="continue" class="btn btn-medium" value="Start" type="button">
+    <h4 id="value">{{ result }}</h4>
+    <input id="replay" class="btn btn-medium" value="Replay" type="button">
+  </div>
+
+
+
+  <p id="echo"></p>
+  <script>
+    var output = {{ output|safe }};
+  </script>
+  <script src="/static/js/vivid.js"></script>
+</div>
+
+
+{% endblock %}

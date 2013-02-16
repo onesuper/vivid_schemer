@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Numbered?</h2>
+
+
+<p class="lead">It is a function that determines whether a represenation of an arithmetic expression contains only numbers besides the +, -, *, / and ^.</p>
+
+<p class="lead">aexp = arithmetic expression</p>
+
+
+<form action="/talk/" method="post" style="margin: 60px 0px 100px 0px;">
+  {% csrf_token %}
+
+
+<table>
+
+<tr>
+<td>
+  <textarea id="inputbox" name="code">
+(begin
+
+(define numbered?
+  (lambda (aexp)
+    (cond
+      ((atom? aexp) (number? aexp))
+
+      ((eq? (car (cdr aexp)) (quote +))
+       (and (numbered? (car aexp))
+         (numbered? (car (cdr (cdr aexp))))))
+
+      ((eq? (car (cdr aexp)) (quote *))
+       (and (numbered? (car aexp))
+         (numbered? (car (cdr (cdr aexp))))))
+
+      ((eq? (car (cdr aexp)) (quote ^))
+       (and (numbered? (car aexp))
+         (numbered? (car (cdr (cdr aexp)))))))))
+
+(numbered? 1)
+(numbered? (quote (3 + (4 * 5))))
+(numbered? (quote (2 * dumpling)))
+
+)</textarea>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("inputbox"), {lineNumbers: true, tabSize: 2});
+</script>
+
+</td>
+
+<td style="text-align: right; vertical-align: bottom;">
+  
+<input id="evalbutton" class="btn btn-large btn-success" type="submit" value="Begin Talking!" type="button">
+<img style="margin-top: 30px;" src="/static/talk.jpg" >
+</td>
+
+</tr>
+</table>
+
+
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

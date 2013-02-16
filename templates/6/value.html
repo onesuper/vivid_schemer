@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Value</h2>
+
+<div class="law">
+<h1>The Seventh Commandment</h1>
+<p class="lead">Recur on the subparts that are of the same nature:
+
+</p>
+
+<ul class="lead">
+<li>On the sublists of a list.</li>
+<li>On the subexpressions of an arithmetic expression.</li>
+</ul>
+
+</div>
+
+
+
+<form action="/talk/" method="post" style="margin: 60px 0px 100px 0px;">
+  {% csrf_token %}
+
+
+<table>
+
+<tr>
+<td>
+  <textarea id="inputbox" name="code">
+(begin
+
+(define value
+  (lambda (nexp)
+    (cond
+      ((atom? nexp) nexp)
+
+      ((eq? (car (cdr nexp)) (quote +))
+       (+ (value (car nexp))
+         (value (car (cdr (cdr nexp))))))
+
+      ((eq? (car (cdr nexp)) (quote *))
+       (* (value (car nexp))
+         (value (car (cdr (cdr nexp))))))
+
+      ((eq? (car (cdr nexp)) (quote ^))
+       (^ (value (car nexp))
+         (value (car (cdr (cdr nexp)))))))))
+
+
+(value (quote (3 + (4 * 5))))
+
+
+)</textarea>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("inputbox"), {lineNumbers: true, tabSize: 2});
+</script>
+
+</td>
+
+<td style="text-align: right; vertical-align: bottom;">
+  
+<input id="evalbutton" class="btn btn-large btn-success" type="submit" value="Begin Talking!" type="button">
+<img style="margin-top: 30px;" src="/static/talk.jpg" >
+</td>
+
+</tr>
+</table>
+
+
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Value2</h2>
+
+
+<div class="law">
+<h1>The Eighth Commandment</h1>
+<p class="lead">Use help functions to abstract from representations.</p>
+</div>
+
+
+
+<form action="/talk/" method="post" style="margin: 60px 0px 100px 0px;">
+  {% csrf_token %}
+
+
+<table>
+
+<tr>
+<td>
+  <textarea id="inputbox" name="code">
+(begin
+
+
+(define 1st-sub-exp
+  (lambda (aexp)
+    (car aexp)))
+
+(define 2nd-sub-exp
+  (lambda (aexp)
+    (car (cdr (cdr aexp)))))
+
+(define operator
+  (lambda (aexp)
+    (car (cdr aexp))))
+
+(define value
+  (lambda (nexp)
+    (cond
+      ((atom? nexp) nexp)
+
+      ((eq? (operator nexp) (quote +))
+       (+ (value (1st-sub-exp nexp))
+          (value (2nd-sub-exp nexp))))
+
+      ((eq? (operator nexp) (quote *))
+       (* (value (1st-sub-exp nexp))
+          (value (2nd-sub-exp nexp))))
+
+      ((eq? (operator nexp) (quote ^))
+       (^ (value (1st-sub-exp nexp))
+          (value (2nd-sub-exp nexp)))))))
+
+
+(value (quote (3 + (4 * 5))))
+
+
+)</textarea>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("inputbox"), {lineNumbers: true, tabSize: 2});
+</script>
+
+</td>
+
+<td style="text-align: right; vertical-align: bottom;">
+  
+<input id="evalbutton" class="btn btn-large btn-success" type="submit" value="Begin Talking!" type="button">
+<img style="margin-top: 30px;" src="/static/talk.jpg" >
+</td>
+
+</tr>
+</table>
+
+</form>
+
+
+{% endblock %}

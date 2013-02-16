@@ -1,0 +1,31 @@
+<html>
+<head>
+  <title>The Vivid Schemer{% if subtitle %} - {{ subtitle }}{% endif %}</title>
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="/static/css/codemirror.css" rel="stylesheet" />
+  <link href="http://fonts.googleapis.com/css?family=Inder" rel="stylesheet" type="text/css">
+  <script src="/static/js/codemirror.js"></script>
+  <script src="/static/js/scheme.js"></script>
+  <link href="/static/css/style.css" rel="stylesheet" />
+  <link rel="shortcut icon" href="/static/favicon.ico" />
+</head>
+<body>
+
+
+
+
+<div class="container-wide">
+
+  <div class="masthead">
+
+    <h3 class="title"><a href="/">The Vivid Schemer</a></h1>
+  </div>
+<hr>
+
+{% block content %}{% endblock %}
+
+
+
+</div>
+
+</body></html>

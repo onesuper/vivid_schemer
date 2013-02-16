@@ -1,0 +1,39 @@
+<form action="/talk/" method="post">
+  {% csrf_token %}
+
+<table>
+
+<tr>
+<td>
+  <textarea id="inputbox" name="code">
+(begin
+
+(define What's-the-answer-to-Life-the-Universe-&-Everything?
+  (lambda ()
+    (+ (* 2 20) 2)))
+
+(What's-the-answer-to-Life-the-Universe-&-Everything?)
+
+
+)</textarea>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("inputbox"), {lineNumbers: true, tabSize: 2});
+</script>
+</td>
+
+<td style="width: 400px;text-align: center; vertical-align: middle;">
+
+
+<input id="evalbutton" class="btn btn-large btn-success" type="submit" value="Tell me!" type="button"><br>
+
+
+</td>
+
+</tr>
+</table>
+<p>* Thank you. <a href="http://en.wikipedia.org/wiki/Douglas_Adams">Douglas Adams</a>.</p>
+
+</form>
+
+

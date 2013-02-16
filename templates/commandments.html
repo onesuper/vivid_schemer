@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+
+
+{% block content %}
+
+
+<h2>Commandments</h2>
+
+<div style="text-align: center;margin">
+<img src="http://ww2.sinaimg.cn/mw690/534218ffjw1dzwuhmwukkj.jpg">
+</div>
+
+
+
+<div class="law">
+<h1>The First Commandment</h1>
+<p class="lead delete">Always ask <span class="serif">null?</span> as the first question in expressing any function.</p>
+
+
+<hr style="border-top: 4px dashed #333;">
+<p>(first revision)</p>
+<p class="lead">When recurring on a list of atoms, <span class="serif">lat</span>, ask two questions about it: <span class="serif">(null? lat)</span> and <span class="serif">else</span>.</p>
+<p class="lead">When recurring on a number, <span class="serif">n</span>, ask two questions about it: <span class="serif">(zero? n)</span> and <span class="serif">else</span>.</p>
+</div>
+
+
+
+
+
+
+
+
+<div class="law">
+<h1>The Second Commandment</h1>
+<p class="lead">Use <span class="serif">cons</span> to build lists.</p>
+</div>
+
+
+
+<div class="law">
+<h1>The Third Commandment</h1>
+<p class="lead">When building a list, descirbe the first typical element, and then <span class="serif">cons</span> it onto the natual recursion.</p>
+</div>
+
+
+
+<div class="law">
+<h1>The Fourth Commandment</h1>
+
+<hr style="border-top: 4px dashed #333;">
+<p>(first revision)</p>
+
+<p class="lead">ALways change at least one argument while recurring. It must be changed to be closer to termination. The changing argument must be tested in the termination condition: when using <span class="serif">cdr</span>, test termination with <span class="serif">null?</span> and when using <span class="serif">sub1</span>, test termination with <span class="serif">zero?</span>.</p>
+
+</div>
+
+
+
+<div class="law">
+<h1>The Fifth Commandment</h1>
+
+
+<p class="lead">When building a value with <span class="serif">+</span>, always use 0 for the value of the terminating line, for adding 0 does not change the value of an addition.</p>
+
+<p class="lead">When building a value with <span class="serif">×</span>, always use 1 for the value of the terminating line, for multiplying by 1 does not change the value of a multiplication.</p>
+
+<p class="lead">When building a value with <span class="serif">cons</span>, always consider () for the value of the terminating line.</p>
+
+</div>
+
+
+<div class="law">
+<h1>The Seventh Commandment</h1>
+<p class="lead">Recur on the subparts that are of the same nature:
+
+<ul class="lead">
+<li>On the sublists of a list.</li>
+<li>On the subexpressions of an arithmetic expression.</li>
+</ul>
+</div>
+
+<div class="law">
+<h1>The Eighth Commandment</h1>
+<p class="lead">Use help functions to abstract from representations.</p>
+</div>
+
+<div class="law">
+<h1>The Ninth Commandment</h1>
+
+<p class="lead">Abstract common patterns with a few new function.</p>
+</div>
+
+{% endblock %}

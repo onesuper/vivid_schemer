@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Pick</h2>
+
+
+<form action="/talk/" method="post" style="margin: 60px 0px 100px 0px;">
+  {% csrf_token %}
+
+<table>
+
+
+<tr>
+<td>
+  <textarea id="inputbox" name="code">
+(begin
+
+(define pick
+  (lambda (n lat)
+    (cond
+      ((zero? (sub1 n)) (car lat))
+      (else (pick (sub1 n) (cdr lat))))))
+
+(pick 3 (quote (chicken braised with mushroom)))
+
+)</textarea>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("inputbox"), {lineNumbers: true, tabSize: 2});
+</script>
+
+</td>
+
+<td style="text-align: right; vertical-align: bottom;">
+  
+<input id="evalbutton" class="btn btn-large btn-success" type="submit" value="Begin Talking!" type="button">
+<img style="margin-top: 30px;" src="/static/talk.jpg" >
+</td>
+
+</tr>
+
+
+
+
+
+</table>
+
+
+<img src="http://ww3.sinaimg.cn/large/534218ffjw1dzvsrpuvmej.jpg">
+
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

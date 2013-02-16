@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Will-stop?</h2>
+
+
+
+<form action="/talk/" method="post" style="margin: 30px 0px 20px 0px;">
+  {% csrf_token %}
+
+
+
+<p class="lead">Can you define this one?</p>
+
+
+<table>
+
+<tr>
+<td>
+  <textarea id="inputbox" name="code">
+(begin
+
+(define will-stop?
+  (lambda (f)
+    ...))
+
+(will-stop? length)
+(will-stop? eternity)
+
+
+)</textarea>
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("inputbox"), {lineNumbers: true, tabSize: 2});
+</script>
+</td>
+
+<td style="text-align: right; vertical-align: bottom;">
+  
+
+</td>
+
+</tr>
+</table>
+
+<p class="lead">so that <span class="serif">(will-stop? length)</span> is <span class="serif">#t</span> and <span class="serif">(will-stop? <a href="/eternity/">eternity</a>)</span> is <span class="serif">#f</span>.</p>
+
+
+<p class="lead">What about this function?</p>
+
+<div><pre>
+(define last-try
+  (lambda (x)
+    (and (will-stop? last-try)
+      (eternity x))))
+</pre></div>
+
+<div class="talk ask func">What is <span class="codestyle"><span class="p">(</span>will-stop? last-try<span class="p">)</span></span>?</div>
+
+<div class="talk answer func">Let's use <span class="codestyle"><span class="p">(</span><span class="keyword">quote</span> <span class="p">())</span></span> to test <span class="codestyle">last-try</span>.</div>
+
+<div class="talk ask func" style="margin-left:20px;">What's the value of <span class="codestyle"><span class="p">(</span>last-try <span class="p">(</span>quote <span class="p">())</span></span>?</div>
+
+<div class="talk answer ordinary" style="margin-left:20px;">It depends on the value of the first expression of and: <span class="codestyle"><span class="p">(</span>will-stop? last-try<span class="p">)</span></span>.</div>
+
+<div class="talk ask cond" style="margin-left:40px;">What if we assume <span class="codestyle"><span class="p">(</span> will-stop? last-try<span class="p">)</span> </span> is <span class="boolean">#f</span>?</div>
+
+<div class="talk answer ordinary" style="margin-left:40px;">Then <span class="codestyle">(<span class="keyword">and</span> <span class="boolean">#f</span> ...)</span> is always <span class="boolean">#f</span>.</div>
+
+<div class="talk answer ordinary" style="margin-left:40px;">So <span class="codestyle"><span class="p">(</span>last-try <span class="p">(</span><span class="keyword">quote</span> <span class="p">()))</span></span> stopped and return <span class="boolean">#f</span>.</div>
+
+<div class="talk ask ordinary" style="margin-left:40px;">But What's the problem?</div>
+
+<div class="talk answer cond" style="margin-left:40px;">We have already assumed that <span class="codestyle"><span class="p">(</span>will-stop? last-try<span class="p">)</span></span> was <span class="boolean">#f</span>, which means <span class="codestyle">last-try</span> will not stop. </div>
+
+<div class="talk ask cond" style="margin-left:40px;">If we say <span class="codestyle"><span class="p">(</span>will-stop? last-try<span class="p">)</span></span> is <span class="boolean">#t</span>.</div>
+
+<div class="talk ask func" style="margin-left:60px;">What is the value of <span class="codestyle"><span class="p">(</span>last-try <span class="p">(</span><span class="keyword">quote</span> <span class="p">()))</span></span>?</div>
+
+<div class="talk answer ordinary" style="margin-left:60px;">It depends on the value of <span class="codestyle"><span class="p">(</span><span class="keyword">and</span> <span class="boolean">#t</span> <span class="p">(</span>eternity <span class="p">(</span><span class="keyword">quote</span> <span class="p">())))</span></span>, which is the same as the value of <span class="codestyle"><span class="p">(</span>eternity <span class="p">(</span><span class="keyword">quote</span> <span class="p">()))</span></span>.</div>
+
+<div class="talk ask ordinary" style="margin-left: 80px;">What is the value of  <span class="codestyle"><span class="p">(</span>eternity <span class="p">(</span><span class="keyword">quote</span> <span class="p">()))</span></span>?</div>
+
+<div class="talk answer ordinary" style="margin-left: 80px">It doesn't have a value. We know it doesn't stop.</div>
+
+<div class="talk answer func" style="margin-left:60px;">So it's <span class="boolean">#f</span>.</div>
+
+<div class="talk ask cond" style="margin-left:40px;">That means we were wrong again! Since this time we said  was <span class="boolean">#t</span> before.</div>
+
+
+
+
+</form>
+
+<p class="lead">That means <span class="serif">will-stop?</span> cannot be defined.</p>
+
+<p>Thank You. <a href="http://en.wikipedia.org/wiki/Alan_Turing">Alan M. Turing</a> and <a href="http://en.wikipedia.org/wiki/Kurt_G%C3%B6del">Kurt Gödel</a>.</p>
+
+<img src="http://ww1.sinaimg.cn/large/534218ffjw1dzugwpiygng.gif" />
+
+{% endblock %}
