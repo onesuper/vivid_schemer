@@ -15,7 +15,13 @@
 
 <p>You can also <a href="#embed">embed</a> the Vivid Schemer in your web page.</p>
 
+
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://vivid.chengyichao.info" data-via="chengyichao" data-count="none">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
 <div style="text-align: right;"><img src="/static/logo2.jpg"></div>
+
+
+
 
 </div>
 
@@ -31,38 +37,7 @@
 
 
 <hr>
-<h2 id="embed">Embed</h2>
 
-
-<img src="/static/love.jpg" style="float: right;margin-top: 200px;">
-
-<p>Insert your code and press <b>generate</b>, then copy the generated code to your site.</p>
-
-<div style="width:700px;">
-<textarea id="embedbox" name="code">
-</textarea>
-</div>
-<script>
-var editor = CodeMirror.fromTextArea(document.getElementById("embedbox"), {lineNumbers: true, tabSize: 2});
-function genEmbed() {
-   var code = editor.getValue() 
-   var genCode = document.getElementById("embedoutput");
-   genCode.value = ("<iframe width=\"500\" height=\"400\" frameborder=\"0\" src=\"http://vivid.chengyichao.info/embed/?code=" + encodeURIComponent(code) + "\"></iframe>");
-
-}
-</script>
-
-<form class="input-inline">
-<input id="genbutton" class="btn btn-medium btn-default" value="generate" type="button" onclick="genEmbed();return false;">
-<input type="text" id="embedoutput" style="height: 30px;margin:0px; width: 520px;">
-</form>
-
-
-
-
-
-
-<hr>
 <h2 id="little">The Little Schemer</h2>
 
 <div style="text-align: center;">
@@ -257,7 +232,38 @@ function genEmbed() {
 <li><a href="map">map</a></li>
 </ul>
 
+<h2 id="embed">Embed</h2>
 
+
+<img src="/static/love.jpg" style="float: right;margin-top: 200px;">
+
+<p>Insert your code and press <b>generate</b>, then copy the generated code to your site.</p>
+
+<div style="width:700px;">
+<textarea id="embedbox" name="code">
+</textarea>
+</div>
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("embedbox"), {lineNumbers: true, tabSize: 2});
+function genEmbed() {
+   var code = editor.getValue() 
+   var genCode = document.getElementById("embedoutput");
+   genCode.value = ("<iframe width=\"500\" height=\"400\" frameborder=\"0\" src=\"http://vivid.chengyichao.info/embed/?code=" + encodeURIComponent(code) + "\"></iframe>");
+
+}
+</script>
+
+<form class="input-inline">
+<input id="genbutton" class="btn btn-medium btn-default" value="generate" type="button" onclick="genEmbed();return false;">
+<input type="text" id="embedoutput" style="height: 30px;margin:0px; width: 520px;">
+</form>
+
+
+
+
+
+
+<hr>
 
 
 
