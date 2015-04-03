@@ -4,7 +4,7 @@ from django.template import Context
 from django.utils import simplejson
 
 import scheme.universe as u
-import scheme.highlighter as h
+#import scheme.highlighter as h
 from scheme.parser import parse
 from scheme.eval import eval, add_globals
 from scheme.utils import to_string

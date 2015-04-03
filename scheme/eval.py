@@ -163,6 +163,8 @@ def eval(x, env=add_globals(Env()), lv=0):
         e.answer("Yeah, baby! It's {0}!".format(to_string(val)))
         return val
 
+
+
     elif x[0] == 'lambda':         # (lambda (var*) exp)
         (_, vars, exp) = x
         e = Echo("lambda", lv)

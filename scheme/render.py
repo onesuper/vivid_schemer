@@ -1,4 +1,3 @@
-import parser
 
 HTML_SPACE = '&nbsp;'
 HTML_NEWLINE = '<br/>'
