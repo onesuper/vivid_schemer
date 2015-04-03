@@ -30,8 +30,9 @@ c3 = '''
 def parse_it(s):
     lexer = Lexer(s)
     parser = Parser(lexer)
-    print parser.form_sexpr()
-
+    sexp = parser.form_sexp()
+    print sexp
+    print sexp.to_lisp_str()
 
 for code in (c1, c2, c3):
     try:

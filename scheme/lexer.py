@@ -4,9 +4,9 @@ import re
 
 class Token:
     def __init__(self, type):
-        self.type = type  # supposed to be a string
-        self.raw = None
-        self.value = None
+        self.type = type    # string e.g. 'INT'
+        self.raw = None     # string e.g. 'name123'
+        self.value = None   # python type, e.g. True
         self.lineno = 0
         self.colno = 0
 
@@ -15,15 +15,16 @@ class Token:
                 % (self.type, repr(self.value), self.lineno, self.colno)
 
 ##
-# @brief Handlers to get the value of a type 
-def t_INTEGER(t):
+# @brief Handlers to set the value of a type from its raw data
+def t_INT(t):
     t.value = int(t.raw)
     return t
 
 def t_ID(t):
+    t.value = t.raw
     return t
 
-def t_BOOLEAN(t):
+def t_BOOL(t):
     if t.raw == '#t':
         t.value = True
     else:
@@ -31,22 +32,21 @@ def t_BOOLEAN(t):
     return t
 
 class Lexer:
-
     letter = r'([A-Za-z])'
     digit = r'([0-9])'
     initial = r'(\.|\_|\+|\-|\!|\$|\%|\&|\*|\/|:|<|=|>|\?|~|\'|' + letter + r'|' + digit + r')'
     subsequent = r'(' + initial + r'|#)'
 
     # Regexes
+    integer_rex = re.compile(r'\d+')
     ident_rex = re.compile(r'(' + initial + r'(' + subsequent + r')*)')
-    interger_rex = re.compile(r'\d+')
     boolean_rex = re.compile(r'\#t|\#f')
 
     tokens = [
         # regex,    type,   handler
-        (interger_rex,  'INT',   t_INTEGER),
-        (ident_rex,     'ID',       t_ID),
-        (boolean_rex,   'BOOL', t_BOOLEAN),
+        (integer_rex,   'INT',  t_INT),
+        (ident_rex,     'ID',   t_ID),
+        (boolean_rex,   'BOOL', t_BOOL),
     ]
 
     def __init__(self, s):

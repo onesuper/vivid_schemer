@@ -30,9 +30,8 @@ def to_string(exp):
     else:                           # number
         return str(exp)
 
-
 def ordinal(n):
-    # ordinal number decoration
+    # returns an ordinal number decorated string
     if 4 <= n <= 20 or 24 <= n <= 30:
         suffix = "th"
     else:
