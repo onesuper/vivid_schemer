@@ -1,13 +1,5 @@
-#=============================================================
-# An interupter for The Little Schemer in Python
-# Based on Peter Norvig's lispy.py
-# By onesuper
-#
-# The syntaxes and sementics strictly follow The Little Schemer
-#==============================================================
 
-
-class LispException(Exception):
+class VividException(Exception):
     code=1
     def __init__(self, message):
         self.message = message
@@ -20,6 +12,9 @@ class LispException(Exception):
         return '{0}'.format(self.message)
 
 
-class ValueException(WeakPointException):
+
+class LexicalError(VividException):
     pass
 
+class ParserError(VividException):
+    pass
