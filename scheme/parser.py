@@ -4,9 +4,11 @@ from exceptions import ParserError
 
 from utils import unique_id
 
+new_id = unique_id()
+
 class SExpr:
     def __init__(self, tok):
-        self.id = unique_id()()
+        self.id = new_id()
         self.lineno = tok.lineno
         self.colno = tok.colno
         self.children = []
