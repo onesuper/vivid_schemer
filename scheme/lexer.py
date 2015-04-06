@@ -3,6 +3,7 @@ from exceptions import LexicalError
 import re
 
 class Token:
+    """Lexical token remembering the position in the original code"""
     def __init__(self, type):
         self.type = type    # string e.g. 'INT'
         self.raw = None     # string e.g. 'name123'
@@ -14,8 +15,7 @@ class Token:
         return "TOKEN(type='%s', value=%s, lineno=%d, colno=%d)" \
                 % (self.type, repr(self.value), self.lineno, self.colno)
 
-##
-# @brief Handlers to set the value of a type from its raw data
+# Handlers to set the value of a type from its raw data
 def t_INT(t):
     t.value = int(t.raw)
     return t
@@ -31,36 +31,53 @@ def t_BOOL(t):
         t.value = False
     return t
 
+def t_PAR(t):
+    t.value = t.raw
+    return t
+
+
+# Regular expressions to form identifier
+letter = '([A-Za-z])'
+digit = '([0-9])'
+initial = '(\.|\_|\+|\-|\!|\$|\%|\&|\*|\/|:|<|=|>|\?|~|\'|' + letter + '|' + digit + ')'
+subsequent = '(' + initial + '|#)'
+
+
 class Lexer:
-    letter = r'([A-Za-z])'
-    digit = r'([0-9])'
-    initial = r'(\.|\_|\+|\-|\!|\$|\%|\&|\*|\/|:|<|=|>|\?|~|\'|' + letter + r'|' + digit + r')'
-    subsequent = r'(' + initial + r'|#)'
+    """
+    Lexer define a bunch of regex string to be used by other module (e.g. highlighter).
+    The tokens are fetched one-by-one by calling `next_token()`
+    """
 
-    # Regexes
-    integer_rex = re.compile(r'\d+')
-    ident_rex = re.compile(r'(' + initial + r'(' + subsequent + r')*)')
-    boolean_rex = re.compile(r'\#t|\#f')
-
-    tokens = [
-        # regex,    type,   handler
-        (integer_rex,   'INT',  t_INT),
-        (ident_rex,     'ID',   t_ID),
-        (boolean_rex,   'BOOL', t_BOOL),
-    ]
+    KEYWORD = '''\bdefine\b|\bbegin\b|\blambda\b|\bquote\b|\bcond\b|\bor\b|\band\b|
+              \belse\b|\beq\?\b|\batom\?\b|\bnull\?\b|\bzero\?\b|\bcar
+              \b|\bcdr\b|\bcons\b|\bif\b|\bmap\b'''
+    INT  = '\d+'
+    ID   = '(' + initial + '(' + subsequent + ')*)'
+    BOOL = '#t|#f'
+    PAR  = '\(|\)'
 
     def __init__(self, s):
-        '''init a lexer from a string.'''
+        """init a lexer from a string(the code to be executed)."""
+
         self.lexdata = s
         self.lexpos = 0
         self.colno = 0
         self.lineno = 1
         self.lexre = []
+        self.tokens = [
+            # regex, type,  handler
+            (self.INT,   'INT',  t_INT),
+            (self.ID,    'ID',   t_ID),
+            (self.BOOL,  'BOOL', t_BOOL),
+            (self.PAR,   'PAR',  t_PAR),
+        ]
         for regex, name, func in self.tokens:
-            self.lexre.append((regex, name, func))
+            self.lexre.append((re.compile(regex), name, func))
 
-    # Get next token from the lexer (move the lexpos)
     def next_token(self):
+        """Get next token from the lexer (move the lexpos)"""
+
         lexpos = self.lexpos
         while lexpos < len(self.lexdata):
             if self.lexdata[lexpos] in ' \t':
@@ -72,20 +89,6 @@ class Lexer:
                 self.colno = 0
                 lexpos += 1
                 continue
-            # attempts to match the LPAR/RPAR             
-            if self.lexdata[lexpos] in '()':
-                if self.lexdata[lexpos] == '(':
-                    tok = Token('LPAR')
-                else:
-                    tok = Token('RPAR')
-                tok.raw = self.lexdata[lexpos] 
-                tok.value = None
-                tok.lineno = self.lineno
-                tok.colno = self.colno
-                self.colno += 1
-                self.lexpos = lexpos + 1
-                return tok
-            # attempts to match a regex pattern
             for lexre, type, setvalue in self.lexre:
                 match = lexre.match(self.lexdata, lexpos)
                 if match:
@@ -100,7 +103,3 @@ class Lexer:
             else:
                 raise LexicalError("Illegal character '%s' at line: %d, col: %d " %
                     (self.lexdata[lexpos], self.lineno , self.colno))
-
-        
-    
-
