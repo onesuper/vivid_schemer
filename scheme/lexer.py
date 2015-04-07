@@ -1,6 +1,5 @@
 
 from exceptions import LexicalError
-import re
 
 class Token:
     """Lexical token remembering the position in the original code"""
@@ -44,6 +43,7 @@ subsequent = '(' + initial + '|#)'
 
 
 class Lexer:
+
     """
     Lexer define a bunch of regex string to be used by other module (e.g. highlighter).
     The tokens are fetched one-by-one by calling `next_token()`
@@ -59,6 +59,8 @@ class Lexer:
 
     def __init__(self, s):
         """init a lexer from a string(the code to be executed)."""
+
+        import re
 
         self.lexdata = s
         self.lexpos = 0

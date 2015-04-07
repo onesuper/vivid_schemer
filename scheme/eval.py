@@ -1,194 +1,116 @@
-#=============================================================
-# An interupter for The Little Schemer in Python
-# Based on Peter Norvig's lispy.py
-# By onesuper
-#
-# The syntaxes and sementics strictly follow The Little Schemer
-#==============================================================
 
+from sexp import SExp, SSymbol, SInt, SBool
+from utils import html_spanize
+from builtins import add_builtins
+from exceptions import WrongParamsError, SyntaxError
 
-
-from env import Env
-from echo import Echo
-from utils import ordinal, to_string
-from primitives import *
-
-
+# for test only
+from cmd import Echo 
 
 isa = isinstance
 
-# the first call to eval will use this to set up
-# the global environments 
-def add_globals(env):
-    env.update( 
-     {'+':add, '-':sub, '*':mult, '/':div,
-      'add1':add1, 'sub1':sub1, '^':expt,
-      'not':not_,
-      '>':gt, '<':lt, '>=':gte, '<=':lte, '=':eq, 
-      'cons':cons, 'car':car, 'cdr':cdr,
-      'null?':is_null,
-      'atom?':is_atom,
-      'eq?':is_eq, 'equal?':is_equal,
-      'zero?':is_zero,
-      'member?':is_member,
-      'number?':is_number,
-      '#f':False, '#t':True, 'else':True,
-      'map': map_,
-      })
-    return env
+class Env(dict):
+    """Environment"""
+    def __init__(self, parms=(), args=(), outer=None):
+        self.update(zip(parms, args))
+        self.outer = outer
 
+    def find(self, var):
+        """
+        Find the innermost `Env` where `var` appears.
+        @param var The variable name
+        @return    An `Env` that contains the variable
+        """
+        return self if var in self else self.outer.find(var)
 
+    # def getOuterEnv(self):
+    #     envStr = ""
+    #     if self.outer is not None:
+    #         for k in self.keys():
+    #             envStr += ", {0} is {1}".format(k, to_string(self[k]))
+    #     return envStr
+    
 
-def eval(x, env=add_globals(Env()), lv=0):
+def eval(sexp, env=Env(), lv=0):
+    """
 
-    # deep recursion is not allowed
-    if lv > 50:
-        return
+    """
 
-    "Evaluate an expression in an environment."
-    "find value in env"
+    if sexp.isEmptyList():
+        raise SyntaxError('first empty: %s' % sexp.to_lisp_str(), sexp.lineno, sexp.colno)
 
-
-    if isa(x, str):               # variable reference
-        return env.find(x)[x]
-
-
-    elif not isa(x, list):         # constant literal
-        return x
-
-                
-    elif x[0] == 'quote':          # (quote exp)
-        (_, exp) = x
+    # (quote exp)
+    if sexp.children[0].value == 'quote':
+        if len(sexp.children) != 2:
+            raise WrongParamsError('quote', 1, sexp.lineno, sexp.colno)
+        (_, exp) = sexp.children
         return exp
-        
 
-    elif x[0] == 'if':
+    # (define var exp)
+    elif sexp.children[0].value == 'define':
+        if len(sexp.children) != 3:
+            raise WrongParamsError('define', 2, sexp.lineno, sexp.colno)
+        (_, var, exp) = sexp.children
+        e = Echo("define", lv)
+        e.ask("define a new variable %s and give it the value of %s" %
+                (html_spanize(var.to_lisp_str(), 'variable'),
+                 html_spanize(exp.to_lisp_str(), 'body')))
+        env[var] = eval(exp, env, lv+1)
+        e.answer("define complete")
+
+    # (lambda params body)
+    elif sexp.children[0].value == 'lambda':
+        if len(sexp.children) != 3:
+            raise WrongParamsError('lambda', 2, sexp.lineno, sexp.colno)
+        (_, params, exp) = sexp
+        e = Echo("lambda", lv)
+        e.ask("lambda creates a function with params %s, and %s as body" % 
+                (html_spanize(params.to_lisp_str(), 'parameter'),
+                 html_spanize(body.to_lisp_str()), 'body'))
+        
+        # create a anonymous function with Python's lambda function
+        # lv is passed via the last element of args        
+        retval = lambda *args: eval(exp, Env(params, args, env), args[len(args)-1] + 1)    
+        e.answer("function %s created", str(retval))
+        return retval
+
+    # (if test conseq alt)
+    elif sexp.children[0].value == 'if':
+        if len(sexp.children) != 4:
+            raise WrongParamsError('if', 3, sexp.lineno, sexp.colno)
+        (_, test, conseq, alt) = x.children
         e0 = Echo("if", lv)
         e0.ask("It depends...")
         e = Echo("test", lv)
-        (_, test, conseq, alt) = x
-        e.ask("Is {0} true?".format(to_string(test)))
+        e.ask("Is %s true?" % test.to_lisp_str())
         if eval(test, env, lv+1):
-            e.answer("Yes, so we do {0}.".format(to_string(conseq)))
+            e.answer("Yes, so we do %s" % conseq.to_lisp_str())
             retval = eval(conseq, env, lv+1)
-            e0.answer("It's {0}".format(to_string(retval)))
-            return retval
         else:
-            e.answer("No, so we do {0}.".format(to_string(alt)))
-            retval = eval(alt, env, lv+1)
-            e0.answer("It's {0}".format(to_string(retval)))
-            return retval
-
-
-    elif x[0] == 'cond':           # (cond (test conseq) (test conseq)...)
-        n = 0
-        e0 = Echo("cond", lv)
-        e0.ask("It depends...")
-        for cond in x[1:]:
-            n += 1
-            (test, conseq) = cond
-            e = Echo("test", lv)
-            e.ask("{0} quesiton: Is {1} true?".format(ordinal(n), to_string(test)))
-            if eval(test, env, lv+1):    # if true
-                e.answer("Yes, so we do {0}".format(to_string(conseq)))
-                retval = eval(conseq, env, lv+1)
-                e0.answer("It's {0}".format(to_string(retval)))
-                return retval  # break out
-            else:                        # if false
-                e.answer("No, so we see the next question")
-        # if we arrive here return NIL
-        return None
-
-
-    elif x[0] == 'or':           # (or exp1 exp2)   return boolean
-        (_, exp1, exp2) = x
-        e0 = Echo("or", lv)
-        e0.ask("It depends...")
-        e = Echo("or1", lv)
-        e.ask("1st question: Is {0} true?".format(to_string(exp1)))
-        if eval(exp1, env, lv+1):
-            e.answer("yes.")
-            e0.answer("It's #t")
-            return True
-        e.answer("nope.")
-        e = Echo("or2", lv)
-        e.ask("2nd question: Is {0} true?".format(to_string(exp2)))
-        if eval(exp2, env, lv+1):
-            e.answer("yes.")
-            e0.answer("It's #t")
-            return True
-        e.answer("nope")
-        e0.answer("Both answers are no, so it's #f")
-        return False
-        
-
-    elif x[0] == 'and':           # (and exp1 exp2)   return boolean
-        (_, exp1, exp2) = x
-        e0 = Echo("and", lv)
-        e0.ask("It depends...")
-        e = Echo("and1", lv)
-        e.ask("1st question: Is {0} true?".format(to_string(exp1)))
-        if not eval(exp1, env, lv+1):
-            e.answer("nope")
-            e0.answer("It's #f")
-            return False
-        e.answer("yes.")
-        e = Echo("and2", lv)
-        e.ask("2nd question: Is {0} true?".format(to_string(exp2)))
-        if not eval(exp2, env, lv+1):
-            e.answer("nope")
-            e0.answer("It's #f")
-            return False
-        e.answer("yes.")
-        e0.answer("Both anwsers are yes, so It's #t")
-        return True
-
-
-    
-    elif x[0] == 'define':         # (define var exp)
-        (_, var, exp) = x
-        e = Echo("define", lv)
-        e.ask("define a new variable <span class=\"variable\">{0}</span>, then give it the value of <span class=\"body\">{1}</span>".format(var, to_string(exp)))
-        value = eval(exp, env, lv+1)
-        env[var] =  value
-        e.answer("~~~")
-
-        
-    elif x[0] == 'begin':          # (begin exp*)
-        e = Echo("begin", lv)
-        e.ask("begin to evaluate expressions.")
-        val = None
-        for exp in x[1:]:
-            val = eval(exp, env, lv+1)
-        e.answer("Yeah, baby! It's {0}!".format(to_string(val)))
-        return val
-
-
-
-    elif x[0] == 'lambda':         # (lambda (var*) exp)
-        (_, vars, exp) = x
-        e = Echo("lambda", lv)
-        e.ask("lambda creates a function with parameters <span class=\"parameter\">{0}</span>, <span class=\"body\">{1}</span> as body.".format(to_string(vars), to_string(exp)))
-        # lv is passed via the last element of args
-        retval = lambda *args: eval(exp, Env(vars, args, env), args[len(args)-1] + 1)    
-        e.answer("~~~")
+            e.answer("No, so we do %s" % alt.to_lisp_str())
+            retval = eval(alt, env, lv+1)        
+        e0.answer("It's %s" % retval.to_lisp_str())
         return retval
 
-
-
-
-
-    else:                          # (proc exp*)
-
+    # (func_name func_args)
+    else: 
         e = Echo("func", lv)
-        args = [exp for exp in x]
-        name = args.pop(0)   # get the function name in the expression
-        e.ask("call <span class=\"func_name\">{0}</span> with arguments: {1}{2}".format(name, ', '.join([to_string(arg) for arg in args]), env.getOuterEnv()))
-        exps = [eval(exp, env, lv+1) for exp in x]   # deeper recursion  
-        proc = exps.pop(0)
-        exps.append(lv)   # pass the recursion depth to the function, in 
-        retval = proc(*exps)
-        e.answer("you get {0}.".format(to_string(retval)))
+        func_name = sexp.children[0]
+        func_args = sexp.children[1:]
+        e.ask("call %s with arguments: %s" % 
+                (html_spanize(func_name.to_lisp_str(), 'name'), 
+                 ', '.join([arg.to_lisp_str() for arg in func_args])))
+        # eval all arguments
+        func_args = [eval(exp, env, lv+1) for exp in sexp.children[1:]]   
+        func_name = eval(func_name)
+        func_args.append(lv)   # pass the recursion depth to the function, in
+        assert hasattr(obj, '__call__')
+        retval = func_name(*func_args)
+        e.answer("you get %s" % retval.to_lisp_str())
         return retval
+
+
+
+
  
 

@@ -16,12 +16,6 @@
 from utils import to_string
 from echo import Echo
 
-
-
-isa = isinstance
-
-
-
 #======================================================
 # arithmetic 
 #======================================================

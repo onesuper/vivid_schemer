@@ -9,8 +9,7 @@ class VividException(Exception):
         return unicode(self).encode('utf-8')
 
     def __unicode__(self):
-        return '{0}'.format(self.message)
-
+        return '%s' % self.message
 
 
 class LexicalError(VividException):
@@ -18,3 +17,13 @@ class LexicalError(VividException):
 
 class ParserError(VividException):
     pass
+
+
+class SyntaxError(VividException):
+    def __init__(self, msg, lineno, colno):
+        VividException.__init__(self, 'line: %d, col: %d: %s' % (lineno, colno, msg))
+
+class WrongParamsError(SyntaxError):
+    def __init__(self, name, numParams, lineno, colno):
+        VividException.__init__(self, SyntaxError('%s should have %d parameters' %
+            (name, numParams), lineno, colno))
