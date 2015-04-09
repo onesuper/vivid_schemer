@@ -1,7 +1,7 @@
 
 from sexp import SExp, SSymbol, SInt, SBool
 from utils import unique_id
-from exceptions import ParserError
+from errors import ParserError
 
 class Parser:
     def __init__(self, lexer):

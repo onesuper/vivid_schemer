@@ -72,7 +72,7 @@ def expt(n, m, lv):
 #==========================================================
 # List Operation
 #==========================================================
-def car(x, lv):
+def car(x, lv, verbose=False):
     e = Echo("car", lv)
     e.ask("What's car of {0}?".format(to_string(x)))
     if isa(x, str):

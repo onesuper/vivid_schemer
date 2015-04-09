@@ -1,8 +1,8 @@
 
-from sexp import SExp, SSymbol, SInt, SBool
+from sexp import SExp, SSymbol, SInt, SBool, SAtom
 from utils import html_spanize
-from builtins import add_builtins
-from exceptions import WrongParamsError, SyntaxError
+from prims import add_globals
+from errors import EvalError
 
 # for test only
 from cmd import Echo 
@@ -21,7 +21,12 @@ class Env(dict):
         @param var The variable name
         @return    An `Env` that contains the variable
         """
-        return self if var in self else self.outer.find(var)
+        if var in self:
+            return self
+        else:
+            return self.outer.find(var) if self.outer else None
+
+
 
     # def getOuterEnv(self):
     #     envStr = ""
@@ -31,25 +36,29 @@ class Env(dict):
     #     return envStr
     
 
-def eval(sexp, env=Env(), lv=0):
-    """
+def eval(sexp, env=add_globals(Env()), lv=0):
+    # evaluating values
+    if isa(sexp, SInt) or isa(sexp, SBool):               
+        return sexp  
 
-    """
-
-    if sexp.isEmptyList():
-        raise SyntaxError('first empty: %s' % sexp.to_lisp_str(), sexp.lineno, sexp.colno)
+    # variable reference
+    if isa(sexp, SSymbol):
+        s = sexp.value
+        e = env.find(s) # try to find val in the outside world
+        if e is None: raise EvalError('unbound variable')
+        return e[s]
 
     # (quote exp)
     if sexp.children[0].value == 'quote':
         if len(sexp.children) != 2:
-            raise WrongParamsError('quote', 1, sexp.lineno, sexp.colno)
+            raise EvalError('quote requires 1 argument')
         (_, exp) = sexp.children
         return exp
 
     # (define var exp)
     elif sexp.children[0].value == 'define':
         if len(sexp.children) != 3:
-            raise WrongParamsError('define', 2, sexp.lineno, sexp.colno)
+            raise EvalError('define requires 2 arguments')
         (_, var, exp) = sexp.children
         e = Echo("define", lv)
         e.ask("define a new variable %s and give it the value of %s" %
@@ -61,7 +70,7 @@ def eval(sexp, env=Env(), lv=0):
     # (lambda params body)
     elif sexp.children[0].value == 'lambda':
         if len(sexp.children) != 3:
-            raise WrongParamsError('lambda', 2, sexp.lineno, sexp.colno)
+            raise EvalError('lambda requires 2 arguments')
         (_, params, exp) = sexp
         e = Echo("lambda", lv)
         e.ask("lambda creates a function with params %s, and %s as body" % 
@@ -77,7 +86,7 @@ def eval(sexp, env=Env(), lv=0):
     # (if test conseq alt)
     elif sexp.children[0].value == 'if':
         if len(sexp.children) != 4:
-            raise WrongParamsError('if', 3, sexp.lineno, sexp.colno)
+            raise EvalError('if requires 3 arguments')
         (_, test, conseq, alt) = x.children
         e0 = Echo("if", lv)
         e0.ask("It depends...")
@@ -102,9 +111,12 @@ def eval(sexp, env=Env(), lv=0):
                  ', '.join([arg.to_lisp_str() for arg in func_args])))
         # eval all arguments
         func_args = [eval(exp, env, lv+1) for exp in sexp.children[1:]]   
+        
+
         func_name = eval(func_name)
+
         func_args.append(lv)   # pass the recursion depth to the function, in
-        assert hasattr(obj, '__call__')
+        assert hasattr(func_name, '__call__')
         retval = func_name(*func_args)
         e.answer("you get %s" % retval.to_lisp_str())
         return retval

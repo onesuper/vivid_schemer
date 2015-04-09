@@ -1,5 +1,5 @@
 
-from exceptions import LexicalError
+from errors import LexicalError
 
 class Token:
     """Lexical token remembering the position in the original code"""

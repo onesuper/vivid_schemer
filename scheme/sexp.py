@@ -73,12 +73,18 @@ class SInt(SAtom):
     def __init__(self, tok, id):
         SAtom.__init__(self, tok, id)
 
+    def __repr__(self):
+        return 'int: ' + str(self.value)
+
     def to_lisp_str(self):
         return str(self.value)
 
 class SBool(SAtom):
     def __init__(self, tok, id):
         SAtom.__init__(self, tok, id)
+
+    def __repr__(self):
+        return 'bool: ' + str(self.value)
 
     def to_lisp_str(self):
         return '#t' if self.value is True else '#f'
