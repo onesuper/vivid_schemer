@@ -1,6 +1,6 @@
 
 from sexp import SExp, SSymbol, SInt, SBool, SAtom
-from utils import html_spanize
+from utils import html_spanize, num_to_ord_str
 from prims import add_globals
 from errors import EvalError
 
@@ -11,6 +11,10 @@ isa = isinstance
 
 class Env(dict):
     """Environment"""
+
+    ident = '  '
+    newline = '\n'
+
     def __init__(self, parms=(), args=(), outer=None):
         self.update(zip(parms, args))
         self.outer = outer
@@ -27,6 +31,20 @@ class Env(dict):
             return self.outer.find(var) if self.outer else None
 
 
+    def to_pretty_str(self, depth=0):
+        """
+        Recursively generate the environments. 
+        Indented according to its depth.
+        """
+
+        s = self.ident * depth
+        s += str(self)
+        s += self.newline
+        if self.outer:
+            for x in self.outer:
+                s += x.to_pretty_str(depth + 1)
+        return s
+
 
     # def getOuterEnv(self):
     #     envStr = ""
@@ -37,6 +55,8 @@ class Env(dict):
     
 
 def eval(sexp, env=add_globals(Env()), lv=0):
+    assert(isa(sexp, SExp))  # Only an object of SExp is evaluable
+
     # evaluating values
     if isa(sexp, SInt) or isa(sexp, SBool):               
         return sexp  
@@ -48,46 +68,53 @@ def eval(sexp, env=add_globals(Env()), lv=0):
         if e is None: raise EvalError('unbound variable')
         return e[s]
 
-    # (quote exp)
+    # (quote body)
     if sexp.children[0].value == 'quote':
         if len(sexp.children) != 2:
             raise EvalError('quote requires 1 argument')
-        (_, exp) = sexp.children
-        return exp
+        (_, sbody) = sexp.children
+        return sbody
 
-    # (define var exp)
+    # (define var body)
     elif sexp.children[0].value == 'define':
         if len(sexp.children) != 3:
             raise EvalError('define requires 2 arguments')
-        (_, var, exp) = sexp.children
+        (_, svar, sbody) = sexp.children
         e = Echo("define", lv)
         e.ask("define a new variable %s and give it the value of %s" %
-                (html_spanize(var.to_lisp_str(), 'variable'),
-                 html_spanize(exp.to_lisp_str(), 'body')))
-        env[var] = eval(exp, env, lv+1)
+                (html_spanize(svar.to_lisp_str(), 'variable'),
+                 html_spanize(sbody.to_lisp_str(), 'body')))
+        env[svar.value] = eval(sbody, env, lv+1)
         e.answer("define complete")
 
     # (lambda params body)
     elif sexp.children[0].value == 'lambda':
         if len(sexp.children) != 3:
             raise EvalError('lambda requires 2 arguments')
-        (_, params, exp) = sexp
+        (_, sparams, sbody) = sexp.children
         e = Echo("lambda", lv)
         e.ask("lambda creates a function with params %s, and %s as body" % 
-                (html_spanize(params.to_lisp_str(), 'parameter'),
-                 html_spanize(body.to_lisp_str()), 'body'))
+                (html_spanize(sparams.to_lisp_str(), 'parameter'),
+                 html_spanize(sbody.to_lisp_str(), 'body')))
         
+        # construct the parameter list like: (a b c) and check the type
+        params = []
+        for i, param in enumerate(sparams.children):
+            if not isa(param, SSymbol):
+                raise EvalError('the %s parameter expected to be symbol') % num_to_ord_str(i)
+            params.append(param.value)
+
         # create a anonymous function with Python's lambda function
         # lv is passed via the last element of args        
-        retval = lambda *args: eval(exp, Env(params, args, env), args[len(args)-1] + 1)    
-        e.answer("function %s created", str(retval))
+        retval = lambda *args: eval(sbody, Env(params, args, env), args[len(args)-1] + 1)    
+        e.answer("function %s created" % str(retval))
         return retval
 
     # (if test conseq alt)
     elif sexp.children[0].value == 'if':
         if len(sexp.children) != 4:
             raise EvalError('if requires 3 arguments')
-        (_, test, conseq, alt) = x.children
+        (_, test, conseq, alt) = sexp.children
         e0 = Echo("if", lv)
         e0.ask("It depends...")
         e = Echo("test", lv)

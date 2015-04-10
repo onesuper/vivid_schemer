@@ -11,7 +11,7 @@ def unique_id():
         return count[0]
     return incr
 
-def ordinal(n):
+def num_to_ord_str(n):
     """
     Returns an ordinal number decorated string (e.g. '2nd')
     @param n  A integer number

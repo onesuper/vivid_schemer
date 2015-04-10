@@ -31,6 +31,11 @@ class SExp:
         else: s += ')'
         return s
 
+    def __repr__(self):
+        return 'sexp: '+ self.to_lisp_str()
+
+
+
     def __str__(self, depth=0):
         """
         Recursively generate a S-expression node.

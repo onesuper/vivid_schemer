@@ -41,3 +41,4 @@ def add_globals(env):
 def quit(lv):
     import sys
     sys.exit()
+
