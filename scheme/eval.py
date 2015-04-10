@@ -101,7 +101,7 @@ def eval(sexp, env=add_globals(Env()), lv=0):
         params = []
         for i, param in enumerate(sparams.children):
             if not isa(param, SSymbol):
-                raise EvalError('the %s parameter expected to be symbol') % num_to_ord_str(i)
+                raise EvalError('the %s parameter expected to be symbol' % num_to_ord_str(i+1))
             params.append(param.value)
 
         # create a anonymous function with Python's lambda function
