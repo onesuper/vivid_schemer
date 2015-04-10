@@ -1,4 +1,4 @@
-from cmd import Echo 
+from cmdline import Echo
 
 
 def add_globals(env):
@@ -20,7 +20,7 @@ def add_globals(env):
         # '<':        lt,
         # '>=':       gte,
         # '<=':       lte,
-        # '=':        eq, 
+        # '=':        eq,
         # 'cons':     cons,
         # 'car':      car,
         # 'cdr':      cdr,
