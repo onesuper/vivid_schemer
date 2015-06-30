@@ -1,5 +1,5 @@
 import unittest
-from scheme import lexer
+import lexer
 
 class TestLex(unittest.TestCase):
 

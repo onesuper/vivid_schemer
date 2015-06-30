@@ -9,5 +9,5 @@ def suite():
     # suite.addTest(test_lexer.TestLex('test_identifier'))
     return suite
 
-def run():
-    unittest.main(defaultTest='test.suite')
+
+unittest.main(defaultTest='test.suite')

@@ -1,4 +1,5 @@
 
+
 from parser import Parser
 from lexer import Lexer
 from eval import eval
@@ -10,14 +11,10 @@ def parse(s):
     sexp = parser.form_sexp()
     return sexp
 
-def repl(prompt='vivid> '):
+def parse_it(prompt='parser> '):
     while True:
-        try:
-            val = eval(parse(raw_input(prompt)))
-            if val is not None:
-                print repr(val)
-        except VividError, e:
-            print e
+            sexp = parse(raw_input(prompt))
+            print sexp
         
 
-repl()
+parse_it()

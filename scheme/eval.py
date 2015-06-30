@@ -1,6 +1,6 @@
 
-from sexp import SExp, SSymbol, SInt, SBool, SAtom
-from utils import html_spanize, num_to_ord_str
+from sexp import SExp
+from utils import html_spanize, num_to_ord_str, to_lisp_str
 from prims import add_globals
 from errors import EvalError
 
@@ -8,6 +8,7 @@ from errors import EvalError
 from cmdline import Echo
 
 isa = isinstance
+
 
 class Env(dict):
     """Environment"""
@@ -57,16 +58,18 @@ class Env(dict):
 def eval(sexp, env=add_globals(Env()), lv=0):
     assert(isa(sexp, SExp))  # Only an object of SExp is evaluable
 
-    # evaluating values
-    if isa(sexp, SInt) or isa(sexp, SBool):
-        return sexp
-
-    # variable reference
-    if isa(sexp, SSymbol):
-        s = sexp.value
-        e = env.find(s) # try to find val in the outside world
-        if e is None: raise EvalError('unbound variable')
-        return e[s]
+    # evaluating SAtom's values
+    if sexp.isAtom():
+        # Leaf value
+        if sexp.type in ('INT', 'BOOL'):
+            return sexp
+        # variable reference
+        if sexp.type == 'ID':
+            s = sexp.value
+            e = env.find(s)  # try to find val in the outside world
+            if e is None:
+                raise EvalError('unbound variable')
+            return e[s]
 
     # (quote body)
     if sexp.children[0].value == 'quote':
@@ -82,8 +85,8 @@ def eval(sexp, env=add_globals(Env()), lv=0):
         (_, svar, sbody) = sexp.children
         e = Echo("define", lv)
         e.ask("define a new variable %s and give it the value of %s" %
-                (html_spanize(svar.to_lisp_str(), 'variable'),
-                 html_spanize(sbody.to_lisp_str(), 'body')))
+                (html_spanize(to_lisp_str(svar), 'variable'),
+                 html_spanize(to_lisp_str(sbody), 'body')))
         env[svar.value] = eval(sbody, env, lv+1)
         e.answer("define complete")
 
@@ -94,8 +97,8 @@ def eval(sexp, env=add_globals(Env()), lv=0):
         (_, sparams, sbody) = sexp.children
         e = Echo("lambda", lv)
         e.ask("lambda creates a function with params %s, and %s as body" %
-                (html_spanize(sparams.to_lisp_str(), 'parameter'),
-                 html_spanize(sbody.to_lisp_str(), 'body')))
+                (html_spanize(to_lisp_str(sparams), 'parameter'),
+                 html_spanize(to_lisp_str(sbody), 'body')))
 
         # construct the parameter list like: (a b c) and check the type
         params = []
@@ -118,14 +121,14 @@ def eval(sexp, env=add_globals(Env()), lv=0):
         e0 = Echo("if", lv)
         e0.ask("It depends...")
         e = Echo("test", lv)
-        e.ask("Is %s true?" % test.to_lisp_str())
+        e.ask("Is %s true?" % to_lisp_str(test))
         if eval(test, env, lv+1):
-            e.answer("Yes, so we do %s" % conseq.to_lisp_str())
+            e.answer("Yes, so we do %s" % to_lisp_str(conseq))
             retval = eval(conseq, env, lv+1)
         else:
-            e.answer("No, so we do %s" % alt.to_lisp_str())
+            e.answer("No, so we do %s" % to_lisp_str(alt))
             retval = eval(alt, env, lv+1)
-        e0.answer("It's %s" % retval.to_lisp_str())
+        e0.answer("It's %s" % to_lisp_str(retval))
         return retval
 
     # (func_name func_args)
@@ -133,23 +136,14 @@ def eval(sexp, env=add_globals(Env()), lv=0):
         e = Echo("func", lv)
         func_name = sexp.children[0]
         func_args = sexp.children[1:]
-        e.ask("call %s with arguments: %s" %
-                (html_spanize(func_name.to_lisp_str(), 'name'),
-                 ', '.join([arg.to_lisp_str() for arg in func_args])))
+        e.ask("call %s with arguments: %s" % (html_spanize(to_lisp_str(func_name), 'name'), ', '.join([to_lisp_str(arg) for arg in func_args])))
         # eval all arguments
         func_args = [eval(exp, env, lv+1) for exp in sexp.children[1:]]
-
 
         func_name = eval(func_name)
 
         func_args.append(lv)   # pass the recursion depth to the function, in
         assert hasattr(func_name, '__call__')
         retval = func_name(*func_args)
-        e.answer("you get %s" % retval.to_lisp_str())
+        e.answer("you get %s" % to_lisp_str(retval))
         return retval
-
-
-
-
-
-

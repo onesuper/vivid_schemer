@@ -1,5 +1,5 @@
 
-from sexp import SExp, SSymbol, SInt, SBool
+from sexp import SExp, SAtom
 from utils import unique_id
 from errors import ParserError
 
@@ -27,12 +27,8 @@ class Parser:
                 L.append(self.form_sexp())
             self._tokens.pop(0) # delete ')'
             return L
-        elif tok.type == 'ID':
-            return SSymbol(tok, self.new_id())
-        elif tok.type == 'INT':
-            return SInt(tok, self.new_id())
-        elif tok.type == 'BOOL':
-            return SBool(tok, self.new_id())
+        elif tok.type in ('ID', 'INT', 'BOOL'):
+            return SAtom(tok, self.new_id())
         else:
             raise ParserError("Unrecognized token '%s' at line %d, col %d" % 
                 (tok.raw, tok.lineno, tok.colno))

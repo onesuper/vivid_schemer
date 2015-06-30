@@ -1,4 +1,6 @@
 
+
+
 class SExp:
     ident = '  '
     newline = '\n'
@@ -8,6 +10,7 @@ class SExp:
         self.lineno = tok.lineno
         self.colno = tok.colno
         self.children = None
+        self.isLeaf = False
 
     def append(self, sexp):
         """Append a sub-sexp to me"""
@@ -19,22 +22,8 @@ class SExp:
     def isEmptyList(self):
         return False if self.children else True
 
-    def to_lisp_str(self):
-        """Convert the SExp to a Lisp-readable string."""
-
-        s = '('
-        if self.children:
-            for x in self.children:
-                s += x.to_lisp_str()
-                s += ' '
-        if s[-1] == ' ': s = s[:-1] + ')'
-        else: s += ')'
-        return s
-
-    def __repr__(self):
-        return 'sexp: '+ self.to_lisp_str()
-
-
+    def isAtom(self):
+        return self.isLeaf
 
     def __str__(self, depth=0):
         """
@@ -50,47 +39,18 @@ class SExp:
                 s += x.__str__(depth + 1)
         return s
 
+
 class SAtom(SExp):
     """SAtom is a special kind of SExp, which has no child."""
-    
     def __init__(self, tok, id):
         SExp.__init__(self, tok, id)
         self.type = tok.type
         self.value = tok.value
         self.children = None
+        self.isLeaf = True
 
     def __str__(self, depth=0):
         s = self.ident * depth
-        s += '`-%s %d <line:%d, col:%d> %s %s' % (
-            self.__class__.__name__, self.id, self.lineno, 
-            self.colno, repr(self.value), self.type)
+        s += '`-SAtom %d <line:%d, col:%d> %s %s' % (self.id, self.lineno, self.colno, str(self.value), self.type)
         s += self.newline
         return s
-
-class SSymbol(SAtom):
-    def __init__(self, tok, id):
-        SAtom.__init__(self, tok, id)
-
-    def to_lisp_str(self):
-        return self.value
-
-class SInt(SAtom):
-    def __init__(self, tok, id):
-        SAtom.__init__(self, tok, id)
-
-    def __repr__(self):
-        return 'int: ' + str(self.value)
-
-    def to_lisp_str(self):
-        return str(self.value)
-
-class SBool(SAtom):
-    def __init__(self, tok, id):
-        SAtom.__init__(self, tok, id)
-
-    def __repr__(self):
-        return 'bool: ' + str(self.value)
-
-    def to_lisp_str(self):
-        return '#t' if self.value is True else '#f'
-

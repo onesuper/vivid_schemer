@@ -1,4 +1,5 @@
 from cmdline import Echo
+from utils import to_lisp_str
 
 
 def add_globals(env):
@@ -8,8 +9,8 @@ def add_globals(env):
 
     env.update({
         'quit':       quit,
-        # '+':        add,
-        # '-':        sub,
+        '+':        add,
+        '-':        sub,
         # '*':        mult,
         # '/':        div,
         # 'add1':     add1,
@@ -42,3 +43,18 @@ def quit(lv):
     import sys
     sys.exit()
 
+
+def add(a, b, lv):
+    e = Echo("add", lv)
+    e.ask("What's the result of {0} + {1}?".format(to_lisp_str(a), to_lisp_str(b)))
+    retval = a.value + b.value
+    e.answer("{0}.".format(retval))
+    return retval
+
+
+def sub(a, b, lv):
+    e = Echo("sub", lv)
+    e.ask("What's the result of {0} - {1}?".format(to_lisp_str(a), to_lisp_str(b)))
+    retval = a.value - b.value
+    e.answer("{0}.".format(retval))
+    return retval

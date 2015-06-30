@@ -1,6 +1,7 @@
 
 from errors import LexicalError
 
+
 class Token:
     """Lexical token remembering the position in the original code"""
     def __init__(self, type):
@@ -11,17 +12,19 @@ class Token:
         self.colno = 0
 
     def __str__(self):
-        return "TOKEN(type='%s', value=%s, lineno=%d, colno=%d)" \
-                % (self.type, repr(self.value), self.lineno, self.colno)
+        return "TOKEN(type='%s', value=%s, lineno=%d, colno=%d)" % (self.type, repr(self.value), self.lineno, self.colno)
+
 
 # Handlers to set the value of a type from its raw data
 def t_INT(t):
     t.value = int(t.raw)
     return t
 
+
 def t_ID(t):
     t.value = t.raw
     return t
+
 
 def t_BOOL(t):
     if t.raw == '#t':
@@ -29,6 +32,7 @@ def t_BOOL(t):
     else:
         t.value = False
     return t
+
 
 def t_PAR(t):
     t.value = t.raw
@@ -52,10 +56,10 @@ class Lexer:
     KEYWORD = '''\bdefine\b|\bbegin\b|\blambda\b|\bquote\b|\bcond\b|\bor\b|\band\b|
               \belse\b|\beq\?\b|\batom\?\b|\bnull\?\b|\bzero\?\b|\bcar
               \b|\bcdr\b|\bcons\b|\bif\b|\bmap\b'''
-    INT  = '\d+'
-    ID   = '(' + initial + '(' + subsequent + ')*)'
+    INT = '\d+'
+    ID = '(' + initial + '(' + subsequent + ')*)'
     BOOL = '#t|#f'
-    PAR  = '\(|\)'
+    PAR = '\(|\)'
 
     def __init__(self, s):
         """init a lexer from a string(the code to be executed)."""
@@ -98,10 +102,9 @@ class Lexer:
                     tok.raw = match.group()  # raw value -> matched str
                     tok.lineno = self.lineno
                     tok.colno = self.colno
-                    self.colno += len(tok.raw)                    
-                    self.lexpos = lexpos + len(tok.raw) 
-                    tok = setvalue(tok)    # set the value 
+                    self.colno += len(tok.raw)
+                    self.lexpos = lexpos + len(tok.raw)
+                    tok = setvalue(tok)    # set the value
                     return tok
             else:
-                raise LexicalError("Illegal character '%s' at line: %d, col: %d " %
-                    (self.lexdata[lexpos], self.lineno , self.colno))
+                raise LexicalError("Illegal character '%s' at line: %d, col: %d " % (self.lexdata[lexpos], self.lineno, self.colno))
