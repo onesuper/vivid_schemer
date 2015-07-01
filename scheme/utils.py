@@ -1,26 +1,7 @@
 
+from sexp import SAtom
 
 isa = isinstance
-
-
-def to_lisp_str(sexp):
-    """Convert the SExp to a Lisp-readable string."""
-    if isa(sexp, int):
-        return str(sexp)
-
-    if sexp.isAtom():
-        return str(sexp.value)
-
-    s = '('
-    if sexp.children:
-        for x in sexp.children:
-            s += to_lisp_str(x)
-            s += ' '
-    if s[-1] == ' ':
-        s = s[:-1] + ')'
-    else:
-        s += ')'
-    return s
 
 
 def unique_id():

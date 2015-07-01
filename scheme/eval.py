@@ -1,6 +1,6 @@
 
-from sexp import SExp
-from utils import html_spanize, num_to_ord_str, to_lisp_str
+from sexp import SExp, SAtom
+from utils import html_spanize, num_to_ord_str
 from prims import add_globals
 from errors import EvalError
 
@@ -59,7 +59,7 @@ def eval(sexp, env=add_globals(Env()), lv=0):
     assert(isa(sexp, SExp))  # Only an object of SExp is evaluable
 
     # Evaluating SAtom's values
-    if sexp.isAtom():
+    if isa(sexp, SAtom):
         # Returns the true value of INT, BOOL type
         if sexp.type in ('INT', 'BOOL'):
             return sexp.value
@@ -84,9 +84,7 @@ def eval(sexp, env=add_globals(Env()), lv=0):
             raise EvalError('define requires 2 arguments')
         (_, svar, sbody) = sexp.children
         e = Echo("define", lv)
-        e.ask("define a new variable %s and give it the value of %s" %
-                (html_spanize(to_lisp_str(svar), 'variable'),
-                 html_spanize(to_lisp_str(sbody), 'body')))
+        e.ask("define a new variable %s and give it the value of %s" % (html_spanize(to_lisp_str(svar), 'variable'), html_spanize(to_lisp_str(sbody), 'body')))
         env[svar.value] = eval(sbody, env, lv+1)
         e.answer("define complete")
 
@@ -136,14 +134,20 @@ def eval(sexp, env=add_globals(Env()), lv=0):
         e = Echo("func", lv)
         func_name = sexp.children[0]
         func_args = sexp.children[1:]
-        e.ask("call %s with arguments: %s" % (html_spanize(to_lisp_str(func_name), 'name'), ', '.join([to_lisp_str(arg) for arg in func_args])))
+        e.ask("call %s with arguments: %s" % (html_spanize(func_name, 'name'), ', '.join([str(arg) for arg in func_args])))
         # eval all arguments
         func_args = [eval(exp, env, lv+1) for exp in sexp.children[1:]]
 
         func_name = eval(func_name)
-
         func_args.append(lv)   # pass the recursion depth to the function, in
-        assert hasattr(func_name, '__call__')
-        retval = func_name(*func_args)
-        e.answer("you get %s" % to_lisp_str(retval))
+
+        if not hasattr(func_name, '__call__'):
+            raise EvalError('{0} is not callable'.format(func_name))
+
+        try:
+            retval = func_name(*func_args)  # wrong argument number
+        except TypeError, e:
+            raise EvalError(str(e))
+
+        e.answer("you get %s" % str(retval))
         return retval
