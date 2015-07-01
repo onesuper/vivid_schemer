@@ -58,18 +58,18 @@ class Env(dict):
 def eval(sexp, env=add_globals(Env()), lv=0):
     assert(isa(sexp, SExp))  # Only an object of SExp is evaluable
 
-    # evaluating SAtom's values
+    # Evaluating SAtom's values
     if sexp.isAtom():
-        # Leaf value
+        # Returns the true value of INT, BOOL type
         if sexp.type in ('INT', 'BOOL'):
-            return sexp
+            return sexp.value
         # variable reference
         if sexp.type == 'ID':
-            s = sexp.value
-            e = env.find(s)  # try to find val in the outside world
+            id_str = sexp.value
+            e = env.find(id_str)  # try to find val in the outside world
             if e is None:
-                raise EvalError('unbound variable')
-            return e[s]
+                raise EvalError('unbound variable: {0}'.format(id_str))
+            return e[id_str]
 
     # (quote body)
     if sexp.children[0].value == 'quote':
