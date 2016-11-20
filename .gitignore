@@ -1,3 +1,13 @@
 *~
 .idea
 *.pyc
+/dist/
+/build/
+/vivid_schemer.egg-info/
+/.eggs/
+build/
+dist/
+vivid_schemer.egg-info/
+vivid_schemer/__pycache__/
+vivid_schemer/playbook/__pycache__/
+

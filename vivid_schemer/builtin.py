@@ -1,71 +1,120 @@
-from sexp import SExp, SAtom
-from errors import VividRuntimeError
+from vivid_schemer.sexp import SExp, SAtom
 
+from vivid_schemer.errors import VividRuntimeError
 
 class Builtin(object):
     """Builtin-procedure wrapper for display"""
+
     def __init__(self, proc, name=None):
-        self.proc = proc
-        if name:
-            self.name = name
+        self._proc = proc
+        if name is not None:
+            self._name = name
         else:
-            self.name = proc.__name__
-        self.law = proc.__doc__
+            self._name = proc.__name__
+        self._law = proc.__doc__
+
+    @property
+    def law(self):
+        return self._law
+
+    @property
+    def name(self):
+        return self._name
 
     def __repr__(self):
-        return '<%s>' % self.name
+        return '<Builtin: %s>' % self._name
 
     def __call__(self, *args):
-        return self.proc(*args)
+        return self._proc(*args)
 
 
 def car(x):
     """The primitive car is defined only for non-empty lists."""
-    if isatom(x):
+    if isinstance(x, SAtom):
         raise VividRuntimeError("you cannot ask for the car of an atom.")
-    elif isnull(x):
+    elif x.isnil():
         raise VividRuntimeError("you cannot ask for the car of the empty list.")
     return x.car
 
 
 def cdr(x):
     """The primitive cdr is defined only for non-empty lists. The cdr of any non-empty list always another list."""
-    if isatom(x):
+    if isinstance(x, SAtom):
         raise VividRuntimeError("you cannot ask for the cdr of an atom")
-    if isnull(x):
+    if x.isnil():
         raise VividRuntimeError("you cannot ask for the cdr of a empty list")
     return x.cdr
 
 
 def cons(x, y):
     """The primitive cons takes two arguments. The second argument to cons must be a list. The result is a list."""
-    if isatom(y):
+    if isinstance(y, SAtom):
         raise VividRuntimeError("the second argument to cons must be list.")
     z = SExp()
-    z.car = x
-    z.cdr = y
+    z._car = x
+    z._cdr = y
+    return z
+
+
+def nil():
+    return SExp()
+
+
+def consnil(x):
+    z = SExp()
+    z._car = x
+    z._cdr = SExp()
     return z
 
 
 def isatom(x):
     """The primitive atom? takes one argument. The argument can be any S-expression."""
-    return isinstance(x, SAtom)
+    if isinstance(x, SAtom):
+        if is_digit_str(x):
+            return True
+        elif is_letter_begin_str(x):
+            return True
+    x.set_msg('because %s is just a list.' % x, color='red')
+    return False
+
+
+def islist(x):
+    if isinstance(x, SAtom):
+        x.set_msg('because %s is just an atom.' % x)
+        return False
+    x.set_msg('because it contains S-expressions enclosed by parentheses.' % x, color='red')
+    return True
+
+
+def is_letter_begin_str(x):
+    import re
+    if re.match(r'^[^0-9].*$', str(x)):
+        x.set_msg('because %s is a string of characters beginning with a letter.' % x, color='red')
+        return True
+    return False
+
+
+def is_digit_str(x):
+    import re
+    if re.match(r'^\d+$', str(x)):
+        x.set_msg('because %s is a string of digits.' % x, color='red')
+        return True
+    return False
 
 
 def isnull(x):
     """The primitive null? is defined only for lists."""
-    if isatom(x):
+    if isinstance(x, SAtom):
         raise VividRuntimeError("you can only ask null? of a list")
     return x.isnil()
 
 
 def iseq(x, y):
     """The primitive eq? takes two arguments. Each must be a non-numeric atom."""
-    if isatom(x) and isatom(y) and x.value is None and y.value is None:
-        return x.literal == y.literal
+    if isinstance(x, SAtom) and isinstance(y, SAtom) and x.value is None and y.value is None:
+        return str(x) == str(y)
     else:
         raise VividRuntimeError("eq? only accepts two non-numeric atoms.")
-
 
 #
 # def is_equal(a, b, lv):
@@ -75,13 +124,7 @@ def iseq(x, y):
 #     return a==b
 #
 #
-# # all numbers are atom
-# # atom?
-# def is_atom(s, lv):
-#     e = Echo("atom?", lv)
-#     e.ask("Is {0} an atom?".format(to_string(s)))
-#     e.answer("Yes.") if isa(s, str) or isa(s, int) or isa(s, float) else e.answer("Nope.")
-#     return isa(s, str) or isa(s, int) or isa(s, float)
+
 #
 #
 #

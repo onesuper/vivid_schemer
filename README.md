@@ -13,7 +13,7 @@ It is intended to provide a [learnable programming](http://worrydream.com/Learna
  environment in which people can 'see' and understand the behavior of code.
 
 
-Currently, The Vivid Schemer provides two command-line tool. `repl` has not difference with an ordinary lisp *read-eval-print* loop, **except** it does allow you to see each step of evaluation and the whole story about it. `book` is an interactive version for The Little Schemer.
+Currently, The Vivid Schemer provides two command-line tool. `repl` has not difference with an ordinary lisp *read-eval-print* loop, **except** it does allow you to see each step of evaluation and the whole story about it. `cli.py` is an interactive version for The Little Schemer.
 
 
 ![](screenshot.gif)
