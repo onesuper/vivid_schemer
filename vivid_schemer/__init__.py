@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from vivid_schemer.play import Play
 
 __name__ = 'vivid_schemer'
 __author__ = 'onesuper'
