@@ -36,13 +36,13 @@ class Play(object):
     def _show(self, x, mode):
         print('-' * 40, file=self._out)
         if mode == 'tree':
-            print(x.as_tree(), file=self._out)
+            print(x.as_tree().strip(), file=self._out)
         elif mode == 'pair':
             print(x.as_pair(), file=self._out)
         elif mode == 'list':
             print(x.as_list(), file=self._out)
         else:
-            print(x.as_pretty_list(), file=self._out)
+            print(x.as_pretty_list().strip(), file=self._out)
 
     def __iter__(self):
         return self

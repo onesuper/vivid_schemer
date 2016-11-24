@@ -39,11 +39,11 @@ class Repl(cmd.Cmd):
 
     def do_help(self, arg):
         print('The Vivid Schemer %s' % __version__)
-        print('[a]bort\tabort this session')
-        print('[e]val\tevaluate current expression')
-        print('[s]tack\tprint the whole stack')
-        print('[t]op\tprint the expression on top of the stack')
-        print('[h]elp\tprint this message')
+        print('abort\tabort this session')
+        print('eval\tevaluate current expression')
+        print('stack\tprint the whole stack')
+        print('top\tprint the expression on top of the stack')
+        print('help\tprint this message')
 
     def do_abort(self, arg):
         print('goodbye!')

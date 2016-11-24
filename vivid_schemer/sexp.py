@@ -159,7 +159,7 @@ class SExp(object):
         else:
             line = newline
             if self._msg:
-                line += indent * depth + str(self._msg) + '\n'
+                line += indent * depth + str(self._msg) + newline
             line += indent * depth + SExp._join_paren(items)
             return line
 
@@ -172,7 +172,7 @@ class SExp(object):
         The leaves are indented according to their depth on the tree.
         Each leave can be previewed as a pair or a list string."""
         s = indent * depth
-        s += '`%s' % ('+' if self._is_folded else '-')
+        s += '|%s' % ('+' if self._is_folded else '-')
         s += 'S%d: ' % self._id
         if self._is_folded:
             s += '\'%s\'' % SExp._shorthand(self.as_list() if self._is_list_view else self.as_pair())
@@ -218,7 +218,7 @@ class SAtom(SExp):
 
     def as_tree(self, indent='  ', newline='\n', depth=0, lisp=False):
         s = indent * depth
-        s += '`-S%d: ' % self._id
+        s += '|-S%d: ' % self._id
         s += '\'%s\'' % (self.as_list() if lisp else self.as_pair())
         if self._msg:
             s += ' %s' % self._msg
