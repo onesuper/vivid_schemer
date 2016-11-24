@@ -3,52 +3,46 @@ from __future__ import print_function
 from vivid_schemer.parser import Parser
 from vivid_schemer.lexer import Lexer
 from vivid_schemer.eval import evaluate, globals
-from vivid_schemer.errors import VividError, VividLexicalError, VividSyntaxError
 
 import sys
 
 
 class Play(object):
-    def __init__(self, tree_mode=False, out=sys.stdout, err=sys.stderr):
-        self._g = None
+    def __init__(self, out=sys.stdout, err=sys.stderr):
+        self._gen = None
         self._sexp = None
-        self._tree_mode = tree_mode
         self._stack = None
         self._envs = None
-        self._out = out
-        self._err = err
+        self._out, self._err = out, err
 
     def parse(self, s):
-        try:
-            lexer = Lexer(s)
-            parser = Parser(lexer)
-            self._sexp = parser.form_sexp()
-            self._g = evaluate(self._sexp, globals())
-        except VividLexicalError or VividSyntaxError as e:
-            print(e, file=self._err)
+        lexer = Lexer(s)
+        parser = Parser(lexer)
+        self._sexp = parser.form_sexp()
+        self._gen = evaluate(self._sexp, globals())
 
     def next(self):
-        try:
-            self._sexp, self._stack, self._envs = next(self._g)
-            self._show(self._sexp)
-        except VividError as e:
-            print(e, file=self._err)
-            return True
-
-    def stack(self):
-        frames = zip(self._stack, self._envs)
-        for s, e in reversed(frames[:-1]):
-            self._show(s)
-
-    def top(self):
+        self._sexp, self._stack, self._envs = next(self._gen)
         self._show(self._sexp)
 
-    def _show(self, x):
+    def stack(self, mode='pretty'):
+        frames = zip(self._stack, self._envs)
+        for s, e in reversed(frames[:-1]):
+            self._show(s, mode)
+
+    def top(self, mode='pretty'):
+        self._show(self._sexp, mode)
+
+    def _show(self, x, mode):
         print('-' * 40, file=self._out)
-        if self._tree_mode:
+        if mode == 'tree':
             print(x.as_tree(), file=self._out)
+        elif mode == 'pair':
+            print(x.as_pair(), file=self._out)
+        elif mode == 'list':
+            print(x.as_list(), file=self._out)
         else:
-            print(x.as_lispm(), file=self._out)
+            print(x.as_pretty_list(), file=self._out)
 
     def __iter__(self):
         return self

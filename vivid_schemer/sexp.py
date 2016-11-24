@@ -4,7 +4,7 @@ from clint.textui import colored
 LOG = logging.getLogger(__name__)
 
 
-class SExp:
+class SExp(object):
     """S-expression representaion of AST like (x . (y . z)) rather then list"""
     __sid = 0
 
@@ -68,7 +68,7 @@ class SExp:
         self._is_visited = True
 
     def __str__(self):
-        return SExp._shorthand(self.as_lisp() if self._is_list_view else self.as_pair())
+        return SExp._shorthand(self.as_list() if self._is_list_view else self.as_pair())
 
     def __repr__(self):
         s = '<S%d: ' % self._id
@@ -125,41 +125,47 @@ class SExp:
         s = '(' + ' '.join(items) + ')'
         return s
 
-    def as_lisp(self, flatten=False):
+    def as_list(self, flatten=False):
         """Render as Lisp-readable string e.g. (x y z)"""
         if self.isnil():
             return '()'
         items = []
         if self._car:
-            items.append(self._car.as_lisp(False))
+            items.append(self._car.as_list(False))
         if self._cdr:
             if not self._cdr.isnil():
-                s = self._cdr.as_lisp(True)  # flatten the cdr chain
+                # flatten the cdr chain
+                s = self._cdr.as_list(True)
                 items.append(s)
         if flatten:
             return ' '.join(items)
         else:
-            return '(' + ' '.join(items) + ')'
+            return SExp._join_paren(items)
 
-    def as_lispm(self, flatten=False, indent='  ', newline='\n', depth=0):
-        """Multi-line lisp-readable string"""
+    def as_pretty_list(self, flatten=False, indent='  ', newline='\n', depth=0):
+        """Multi-line lisp-readable string containing message above each (cdr)"""
         if self.isnil():
             return '()'
         items = []
         if self._car:
-            items.append(self._car.as_lispm(False, indent, newline, depth + 1))
+            items.append(self._car.as_pretty_list(False, indent, newline, depth + 1))
         if self._cdr:
             if not self._cdr.isnil():
-                s = self._cdr.as_lispm(True, indent, newline, depth)  # flatten the cdr chain
+                # flatten the cdr chain
+                s = self._cdr.as_pretty_list(True, indent, newline, depth)
                 items.append(s)
         if flatten:
             return ' '.join(items)
         else:
             line = newline
             if self._msg:
-                line += indent * depth + '%s\n' % self._msg
-            line += indent * depth + '(' + ' '.join(items) + ')'
+                line += indent * depth + str(self._msg) + '\n'
+            line += indent * depth + SExp._join_paren(items)
             return line
+
+    @classmethod
+    def _join_paren(cls, items):
+        return '(' + ' '.join(items) + ')'
 
     def as_tree(self, indent='  ', newline='\n', depth=0):
         """Recursively echo the AST tree based on the S-expresssion.
@@ -169,7 +175,7 @@ class SExp:
         s += '`%s' % ('+' if self._is_folded else '-')
         s += 'S%d: ' % self._id
         if self._is_folded:
-            s += '\'%s\'' % SExp._shorthand(self.as_lisp() if self._is_list_view else self.as_pair())
+            s += '\'%s\'' % SExp._shorthand(self.as_list() if self._is_list_view else self.as_pair())
         if self._msg:
             s += ' %s' % self._msg
         if self._is_show_value:
@@ -193,7 +199,7 @@ class SExp:
 
 class SAtom(SExp):
     def __init__(self, literal):
-        SExp.__init__(self)
+        super(SAtom, self).__init__()
         assert isinstance(literal, str)
         self._literal = literal
 
@@ -203,17 +209,17 @@ class SAtom(SExp):
     def as_pair(self):
         return self._literal
 
-    def as_lisp(self, flatten=False):
+    def as_list(self, flatten=False):
         return self._literal
 
-    def as_lispm(self, flatten=False, indent='  ', newline='\n', depth=0):
+    def as_pretty_list(self, flatten=False, indent='  ', newline='\n', depth=0):
         s = self._literal
         return s
 
     def as_tree(self, indent='  ', newline='\n', depth=0, lisp=False):
         s = indent * depth
         s += '`-S%d: ' % self._id
-        s += '\'%s\'' % (self.as_lisp() if lisp else self.as_pair())
+        s += '\'%s\'' % (self.as_list() if lisp else self.as_pair())
         if self._msg:
             s += ' %s' % self._msg
         if self._is_show_value:

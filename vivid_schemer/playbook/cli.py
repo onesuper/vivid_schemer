@@ -1,5 +1,9 @@
+from vivid_schemer import __version__
+
 from vivid_schemer.playbook.book import Book
 from vivid_schemer.play import Play
+from vivid_schemer.sexp import SExp, SAtom
+from vivid_schemer.errors import VividError
 
 import click
 import readline
@@ -18,8 +22,8 @@ logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 
 
 class Repl(cmd.Cmd):
-    prompt = 'play>'
-    intro = 'Usage: [a]bort  [n]ext  [s]tack  [t]op  [h]elp'
+    prompt = 'play>: '
+    intro = 'Usage: [a]bort  [e]val  [s]tack  [t]op  [h]elp'
 
     def __init__(self, code, tree_mode=False, debug=False):
         cmd.Cmd.__init__(self)
@@ -30,34 +34,54 @@ class Repl(cmd.Cmd):
         logging.getLogger().setLevel(
             logging.DEBUG if debug else logging.INFO)
 
-        self._play = Play(tree_mode=tree_mode)
+        self._play = Play()
         self._play.parse(code)
 
     def do_help(self, arg):
-        print('[n]ext\tnext step of evaluation')
-        print('[a]bort\tabort the current evaluation')
+        print('The Vivid Schemer %s' % __version__)
+        print('[a]bort\tabort this session')
+        print('[e]val\tevaluate current expression')
+        print('[s]tack\tprint the whole stack')
+        print('[t]op\tprint the expression on top of the stack')
         print('[h]elp\tprint this message')
 
     def do_abort(self, arg):
         print('goodbye!')
         return True
 
-    def do_next(self, arg):
+    def do_eval(self, arg):
         try:
             self._play.next()
         except StopIteration:
-            print('Value: %s' % self._play.value)
+            v = self._play.value
+
+            if isinstance(v, int):
+                print('(integer): %s' % v)
+            elif isinstance(v, SAtom):
+                print('(atom): %s' % str(v))
+            elif isinstance(v, SExp):
+                print('(list): %s' % v.as_list())
+            else:
+                raise TypeError('(unknown type): ' % v)
             return True
 
     def do_top(self, arg):
-        self._play.top()
+        args = arg.strip().split()
+        if len(args) > 0:
+            self._play.top(args[0])
+        else:
+            self._play.top()
 
     def do_stack(self, arg):
-        self._play.stack()
+        args = arg.strip().split()
+        if len(args) > 0:
+            self._play.stack(args[0])
+        else:
+            self._play.stack()
 
     do_h = do_help
     do_t = do_top
-    do_n = do_next
+    do_e = do_eval
     do_a = do_abort
     do_s = do_stack
     do_EOF = do_abort
@@ -98,8 +122,11 @@ def chapter(ctx, name):
               help='The code to play.')
 def playground(ctx, code):
     """Try with any code in playground."""
-    cmd = Repl(code, ctx.obj['tree'], ctx.obj['debug'])
-    cmd.cmdloop()
+    try:
+        cmd = Repl(code, ctx.obj['tree'], ctx.obj['debug'])
+        cmd.cmdloop()
+    except VividError as e:
+        print(e)
 
 
 if __name__ == "__main__":

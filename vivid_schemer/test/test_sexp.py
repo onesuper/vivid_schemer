@@ -34,10 +34,10 @@ class TestSExp(unittest.TestCase):
         self.assertEqual('(d . ((b . (a . ())) . (c . ())))', self.d___b_al__c.as_pair())
 
     def testListStr(self):
-        self.assertEqual('()', self.nil.as_lisp())
-        self.assertEqual('a', self.a.as_lisp())
-        self.assertEqual('(a)', self.al.as_lisp())
-        self.assertEqual('(b a)', self.b_al.as_lisp())
-        self.assertEqual('((b) a)', self.bl_al.as_lisp())
-        self.assertEqual('((b a) c)', self.b_al__c.as_lisp())
-        self.assertEqual('(d (b a) c)', self.d___b_al__c.as_lisp())
+        self.assertEqual('()', self.nil.as_list())
+        self.assertEqual('a', self.a.as_list())
+        self.assertEqual('(a)', self.al.as_list())
+        self.assertEqual('(b a)', self.b_al.as_list())
+        self.assertEqual('((b) a)', self.bl_al.as_list())
+        self.assertEqual('((b a) c)', self.b_al__c.as_list())
+        self.assertEqual('(d (b a) c)', self.d___b_al__c.as_list())
