@@ -21,9 +21,9 @@ class Play(object):
         self._sexp = parser.form_sexp()
         self._gen = evaluate(self._sexp, globals())
 
-    def next(self):
+    def next(self, mode='pretty'):
         self._sexp, self._stack, self._envs = next(self._gen)
-        self._show(self._sexp)
+        self._show(self._sexp, mode)
 
     def stack(self, mode='pretty'):
         frames = zip(self._stack, self._envs)

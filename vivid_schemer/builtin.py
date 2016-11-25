@@ -82,14 +82,14 @@ def islist(x):
     if isinstance(x, SAtom):
         x.set_msg('because %s is just an atom.' % x)
         return False
-    x.set_msg('because it contains S-expressions enclosed by parentheses.' % x, color='red')
+    x.set_msg('because it contains S-expressions enclosed by parentheses.', color='red')
     return True
 
 
 def is_letter_begin_str(x):
     import re
     if re.match(r'^[^0-9].*$', str(x)):
-        x.set_msg('because %s is a string of characters beginning with a letter.' % x, color='red')
+        x.set_msg('because it is a string of characters beginning with a letter.', color='red')
         return True
     return False
 
@@ -97,7 +97,7 @@ def is_letter_begin_str(x):
 def is_digit_str(x):
     import re
     if re.match(r'^\d+$', str(x)):
-        x.set_msg('because %s is a string of digits.' % x, color='red')
+        x.set_msg('because it is a string of digits.', color='red')
         return True
     return False
 

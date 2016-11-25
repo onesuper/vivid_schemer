@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from vivid_schemer import __version__
 
 from vivid_schemer.playbook.book import Book
@@ -18,22 +20,15 @@ import cmd
 import logging
 
 FORMAT = '[%(levelname)s] [%(filename)s:%(lineno)d] %(message)s '
-logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+logging.basicConfig(level=logging.WARNING, format=FORMAT)
 
 
 class Repl(cmd.Cmd):
     prompt = 'play>: '
     intro = 'Usage: [a]bort  [e]val  [s]tack  [t]op  [h]elp'
 
-    def __init__(self, code, tree_mode=False, debug=False):
+    def __init__(self, code):
         cmd.Cmd.__init__(self)
-
-        print('Debug mode is %s' % ('on' if debug else 'off'))
-        print('Tree mode is %s' % ('on' if tree_mode else 'off'))
-
-        logging.getLogger().setLevel(
-            logging.DEBUG if debug else logging.INFO)
-
         self._play = Play()
         self._play.parse(code)
 
@@ -51,10 +46,13 @@ class Repl(cmd.Cmd):
 
     def do_eval(self, arg):
         try:
-            self._play.next()
+            args = arg.strip().split()
+            if len(args) > 0:
+                self._play.next(args[0])
+            else:
+                self._play.next()
         except StopIteration:
             v = self._play.value
-
             if isinstance(v, int):
                 print('(integer): %s' % v)
             elif isinstance(v, SAtom):
@@ -88,18 +86,17 @@ class Repl(cmd.Cmd):
 
 
 @click.group()
-@click.option('--debug/--no-debug', default=False, help='Enable debug mode.')
-@click.option('--tree/--no-tree', default=False,
-              help='Display the SExpression in tree mode.')
-@click.pass_context
-def cli(ctx, debug, tree):
+@click.option('-v', '--verbose', count=True, help='verbosity: -v, -vv')
+def cli(verbose):
     """A REPL for "The Little Schemer" built with love."""
-    ctx.obj = {'debug': debug, 'tree': tree}
+    if verbose == 1:
+        logging.getLogger().setLevel(logging.INFO)
+    elif verbose == 2:
+        logging.getLogger().setLevel(logging.DEBUG)
 
 
 @cli.command(short_help='list the chapters')
-@click.pass_context
-def list(ctx):
+def list():
     """List all the chapters in "The Little Schemer"."""
     for ch in _book.collect():
         click.echo(ch)
@@ -107,23 +104,21 @@ def list(ctx):
 
 @cli.command(short_help='choose a chapter')
 @click.argument('name')
-@click.pass_context
-def chapter(ctx, name):
+def chapter(name):
     """Choose a chapter in "The Little Schemer" to play."""
     with open(_book.collect()[name]) as fd:
         s = ''.join(fd.readlines())
-        cmd = Repl(s, ctx.obj['tree'], ctx.obj['debug'])
+        cmd = Repl(s)
         cmd.cmdloop()
 
 
 @cli.command(short_help='enter the playground')
-@click.pass_context
-@click.option('--code', '-s', prompt='scheme>',
-              help='The code to play.')
-def playground(ctx, code):
+@click.option('--code', '-s', prompt='scheme>', help='The code to play.')
+def playground(code):
     """Try with any code in playground."""
+
     try:
-        cmd = Repl(code, ctx.obj['tree'], ctx.obj['debug'])
+        cmd = Repl(code)
         cmd.cmdloop()
     except VividError as e:
         print(e)
