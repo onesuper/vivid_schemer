@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import unittest
 from vivid_schemer.sexp import SExp, SAtom
 from vivid_schemer.builtin import cons
@@ -41,3 +43,20 @@ class TestSExp(unittest.TestCase):
         self.assertEqual('((b) a)', self.bl_al.as_list())
         self.assertEqual('((b a) c)', self.b_al__c.as_list())
         self.assertEqual('(d (b a) c)', self.d___b_al__c.as_list())
+
+    def testStartswithNondigit(self):
+        self.assertTrue(SAtom('aaa').startswith_nondigit())
+        self.assertTrue(SAtom('aa11133').startswith_nondigit())
+        self.assertTrue(SAtom('aa11133').startswith_nondigit())
+        self.assertTrue(SAtom('*abc$').startswith_nondigit())
+        self.assertTrue(SAtom('你好').startswith_nondigit())
+        self.assertTrue(SAtom('*abc1231$').startswith_nondigit())
+        self.assertFalse(SAtom('1231$').startswith_nondigit())
+        self.assertFalse(SAtom('2.2').startswith_nondigit())
+        self.assertFalse(SAtom('2.2').startswith_nondigit())
+
+    def testIsDigits(self):
+        self.assertTrue(SAtom('123456789').isdigits())
+        self.assertFalse(SAtom('123456789a').isdigits())
+        self.assertFalse(SAtom('aa11133').isdigits())
+        self.assertFalse(SAtom('111s33').isdigits())

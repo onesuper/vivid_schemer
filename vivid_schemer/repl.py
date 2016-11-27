@@ -2,41 +2,85 @@ from __future__ import print_function
 
 from vivid_schemer.parser import Parser
 from vivid_schemer.lexer import Lexer
-from vivid_schemer.eval import evaluate, globals, as_repr
+from vivid_schemer.eval import evaluate, Env
+from vivid_schemer.builtin import *
 
 import sys
 
+_global_envs = {
+    'cdr': Builtin(cdr),
+    'car': Builtin(car),
+    'cons': Builtin(cons),
+    'atom?': Builtin(isatom, 'Is it true that this is an atom? %r'),
+    'list?': Builtin(islist, 'Is it true that this is a list? %r'),
+    'sexp?': Builtin(issexp, 'Is it true that this is an S-expression? %r'),
+    'null?': Builtin(isnull, 'null?'),
+    'eq?': Builtin(iseq, 'eq?'),
+    'add1': Builtin(lambda x: x + 1, 'add1'),
+    'sub1': Builtin(lambda x: x - 1, 'sub1'),
+    'how-many-sexps?': Builtin(how_many_sexps,
+                               'How many S-expressions are in the list %r and what are they?'),
+    # 'equal?':   is_equal,
+    # 'zero?':    is_zero,
+    # 'member?':  is_member,
+    # 'number?':  is_number,
+    # 'map':      map_,
 
-class Play(object):
+    # arithmetic
+    '+': Builtin(lambda x, y: x + y, 'add'),
+    '-': Builtin(lambda x, y: x - y, 'sub'),
+    '*': Builtin(lambda x, y: x * y, 'mult'),
+    '/': Builtin(lambda x, y: x / y, 'div'),
+    '>': Builtin(lambda x, y: x > y, 'gt'),
+    '<': Builtin(lambda x, y: x < y, 'lt'),
+    '>=': Builtin(lambda x, y: x >= y, 'gte'),
+    '<=': Builtin(lambda x, y: x <= y, 'lte'),
+    '=': Builtin(lambda x, y: x == y, 'eq'),
+    '^': Builtin(lambda x, y: x ** y, 'power'),
+    'not': Builtin(lambda x: ~x, 'not'),
+
+    # var
+    '#t': True,
+    '#f': False,
+    'else': True,
+}
+
+
+class Repl(object):
     def __init__(self, out=sys.stdout, err=sys.stderr):
         self._gen = None
-        self._sexp = None
         self._stack = None
         self._envs = None
         self._out, self._err = out, err
+        self._end_loop = True
 
-    def parse(self, s):
+    def read(self, s):
         lexer = Lexer(s)
         parser = Parser(lexer)
-        self._sexp = parser.form_sexp()
-        self._gen = evaluate(self._sexp, globals())
+        self._envs = [Env(**_global_envs)]
+        self._stack = [parser.form_sexp()]
+        self._gen = evaluate(self._stack, self._envs)
+        self._end_loop = False
 
     def eval(self):
-        self._sexp, self._stack, self._envs = next(self._gen)
-
-    def __repr__(self):
-        return as_repr(self._sexp.value)
+        if self._end_loop:
+            raise StopIteration
+        try:
+            tos, self._stack, self._envs = next(self._gen)
+            return tos.value
+        except StopIteration:
+            self._end_loop = True
 
     def stack(self, mode='pretty'):
-        frames = zip(self._stack, self._envs)
-        for s, e in reversed(frames[:-1]):
+        frames = list(zip(self._stack, self._envs))
+        for s, e in reversed(frames):
+            print('-' * 40, file=self._out)
             self._show(s, mode)
 
     def top(self, mode='pretty'):
-        self._show(self._sexp, mode)
+        self._show(self._stack[-1], mode)
 
     def _show(self, x, mode):
-        print('-' * 40, file=self._out)
         if mode == 'tree':
             print(x.as_tree().strip(), file=self._out)
         elif mode == 'pair':
@@ -52,10 +96,6 @@ class Play(object):
     def __next__(self):
         self.eval()
         return self
-
-    @property
-    def value(self):
-        return self._sexp.value
 
 
 def exlude_globals(envs):

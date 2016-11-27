@@ -1,5 +1,3 @@
 (begin
-    (atom? (quote  ()))
-    (list? (quote ((atom turkey) or)))
-    (list? (quote  (() () () ())))
+    (car (cdr (quote ((b) (x y) ((c))))))
 )

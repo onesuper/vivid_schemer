@@ -3,8 +3,7 @@ from __future__ import print_function
 from vivid_schemer import __version__
 
 from vivid_schemer.playbook.book import Book
-from vivid_schemer.play import Play
-from vivid_schemer.sexp import SExp, SAtom
+from vivid_schemer.repl import Repl
 from vivid_schemer.errors import VividError
 
 import click
@@ -23,14 +22,15 @@ FORMAT = '[%(levelname)s] [%(filename)s:%(lineno)d] %(message)s '
 logging.basicConfig(level=logging.WARNING, format=FORMAT)
 
 
-class Repl(cmd.Cmd):
+class Cli(cmd.Cmd):
     prompt = 'play>: '
     intro = 'Usage: [a]bort  [e]val  [s]tack  [t]op  [h]elp'
 
     def __init__(self, code):
         cmd.Cmd.__init__(self)
-        self._play = Play()
-        self._play.parse(code)
+        self._repl = Repl()
+        self._repl.read(code)
+        self._evaluted_val = None
 
     def do_help(self, arg):
         print('The Vivid Schemer %s' % __version__)
@@ -46,36 +46,29 @@ class Repl(cmd.Cmd):
 
     def do_eval(self, arg):
         try:
+            self._evaluted_val = self._repl.eval()
             args = arg.strip().split()
             if len(args) > 0:
-                self._play.next(args[0])
+                self._repl.top(args[0])
             else:
-                self._play.next()
+                self._repl.top()
         except StopIteration:
-            v = self._play.value
-            if isinstance(v, int):
-                print('(integer): %s' % v)
-            elif isinstance(v, SAtom):
-                print('(atom): %s' % str(v))
-            elif isinstance(v, SExp):
-                print('(list): %s' % v.as_list())
-            else:
-                raise TypeError('(unknown type): ' % v)
+            print(self._evaluted_val)
             return True
 
     def do_top(self, arg):
         args = arg.strip().split()
         if len(args) > 0:
-            self._play.top(args[0])
+            self._repl.top(args[0])
         else:
-            self._play.top()
+            self._repl.top()
 
     def do_stack(self, arg):
         args = arg.strip().split()
         if len(args) > 0:
-            self._play.stack(args[0])
+            self._repl.stack(args[0])
         else:
-            self._play.stack()
+            self._repl.stack()
 
     do_h = do_help
     do_t = do_top
@@ -108,7 +101,7 @@ def chapter(name):
     """Choose a chapter in "The Little Schemer" to play."""
     with open(_book.collect()[name]) as fd:
         s = ''.join(fd.readlines())
-        cmd = Repl(s)
+        cmd = Cli(s)
         cmd.cmdloop()
 
 
@@ -118,7 +111,7 @@ def playground(code):
     """Try with any code in playground."""
 
     try:
-        cmd = Repl(code)
+        cmd = Cli(code)
         cmd.cmdloop()
     except VividError as e:
         print(e)

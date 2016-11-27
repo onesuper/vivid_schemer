@@ -71,19 +71,32 @@ class SExp(object):
         return SExp._shorthand(self.as_list() if self._is_list_view else self.as_pair())
 
     def __repr__(self):
-        s = '<S%d: ' % self._id
-        s += '\'%s\'>' % str(self)
-        return s
+        return self.as_list()
 
-    def find(self, _id):
-        if self._id == _id:
+    # def __len__(self):
+    #     return len(self.to_list())
+
+    def to_list(self):
+        """Flatten an S-expression to a list representation
+        e.g (x y z) => [x, y, z]"""
+        l = []
+        x = self
+        while True:
+            if x.isnil():
+                break
+            l.append(x._car)
+            x = x._cdr
+        return l
+
+    def find(self, id):
+        if self._id == id:
             return self
         else:
             if self._car:
-                x = self._car.find(_id)
+                x = self._car.find(id)
                 if x is None:
                     if self._cdr:
-                        x = self._cdr.find(_id)
+                        x = self._cdr.find(id)
                     return x
                 else:
                     return x
@@ -229,6 +242,17 @@ class SAtom(SExp):
 
     def __str__(self):
         return self._literal
+
+    def __repr__(self):
+        return self._literal
+
+    def startswith_nondigit(self):
+        import re
+        return re.match(r'^[^0-9].*$', self._literal)
+
+    def isdigits(self):
+        import re
+        return re.match(r'^\d+$', self._literal)
 
     def fold(self):
         pass

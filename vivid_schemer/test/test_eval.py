@@ -30,7 +30,7 @@ class TestEval(unittest.TestCase):
 
         atom = new_symbol('abc')
         self.assertIsNone(atom.value)
-        eval_trace(atom, Env(['abc'], [199]))
+        eval_trace(atom, Env(abc=199))
         self.assertEqual(199, atom.value)
 
     def testQuote(self):
@@ -68,7 +68,7 @@ class TestEval(unittest.TestCase):
         proc = cons(new_symbol('plus'),
                     cons(new_symbol('3'),
                          consnil(new_symbol('2'))))
-        env = Env(['plus'], [Builtin(lambda x, y: x + y)])
+        env = Env(plus=Builtin(lambda x, y: x + y))
         eval_trace(proc, env)
 
     # def testCond(self):

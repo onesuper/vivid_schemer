@@ -2,15 +2,18 @@ from vivid_schemer.sexp import SExp, SAtom
 
 from vivid_schemer.errors import VividRuntimeError
 
+import logging
+
+LOG = logging.getLogger(__name__)
+
+
 class Builtin(object):
     """Builtin-procedure wrapper for display"""
 
-    def __init__(self, proc, name=None):
+    def __init__(self, proc, question=None):
         self._proc = proc
-        if name is not None:
-            self._name = name
-        else:
-            self._name = proc.__name__
+        self._question = question
+        self._name = proc.__name__
         self._law = proc.__doc__
 
     @property
@@ -20,6 +23,10 @@ class Builtin(object):
     @property
     def name(self):
         return self._name
+
+    @property
+    def question(self):
+        return self._question
 
     def __repr__(self):
         return '<Builtin: %s>' % self._name
@@ -31,18 +38,28 @@ class Builtin(object):
 def car(x):
     """The primitive car is defined only for non-empty lists."""
     if isinstance(x, SAtom):
-        raise VividRuntimeError("you cannot ask for the car of an atom.")
+        x.set_msg("You cannot ask for the car of an atom.", color='red')
+        LOG.warn("You cannot ask for the car of an atom.")
+        return None
     elif x.isnil():
-        raise VividRuntimeError("you cannot ask for the car of the empty list.")
+        x.set_msg("You cannot ask for the car of the empty list.", color='red')
+        LOG.warn("You cannot ask for the car of the empty list.")
+        return None
+    x.set_msg('because %r is the first S-expression of this non-empty list.' % x.car, color='red')
     return x.car
 
 
 def cdr(x):
     """The primitive cdr is defined only for non-empty lists. The cdr of any non-empty list always another list."""
     if isinstance(x, SAtom):
-        raise VividRuntimeError("you cannot ask for the cdr of an atom")
+        x.set_msg("You cannot ask for the cdr of an atom.", color='red')
+        LOG.warn("You cannot ask for the cdr of an atom.")
+        return None
     if x.isnil():
-        raise VividRuntimeError("you cannot ask for the cdr of a empty list")
+        x.set_msg("You cannot ask for the cdr of a empty list.", color='red')
+        LOG.warn("You cannot ask for the cdr of a empty list.")
+        return None
+    x.set_msg('because %r is the list l without %r.' % (x.cdr, x.car), color='red')
     return x.cdr
 
 
@@ -70,9 +87,11 @@ def consnil(x):
 def isatom(x):
     """The primitive atom? takes one argument. The argument can be any S-expression."""
     if isinstance(x, SAtom):
-        if is_digit_str(x):
+        if x.isdigits():
+            x.set_msg('because it is a string of digits.', color='red')
             return True
-        elif is_letter_begin_str(x):
+        elif x.startswith_nondigit():
+            x.set_msg('because it is a string of characters beginning with a letter.', color='red')
             return True
     x.set_msg('because %s is just a list.' % x, color='red')
     return False
@@ -86,20 +105,20 @@ def islist(x):
     return True
 
 
-def is_letter_begin_str(x):
-    import re
-    if re.match(r'^[^0-9].*$', str(x)):
-        x.set_msg('because it is a string of characters beginning with a letter.', color='red')
+def issexp(x):
+    if isinstance(x, SAtom):
+        x.set_msg('because all atoms are S-expressions.', color='red')
         return True
-    return False
+    elif isinstance(x, SExp):
+        x.set_msg('because all lists are S-expressions.', color='red')
+        return True
+    assert 1 == 0
 
 
-def is_digit_str(x):
-    import re
-    if re.match(r'^\d+$', str(x)):
-        x.set_msg('because it is a string of digits.', color='red')
-        return True
-    return False
+def how_many_sexps(x):
+    sexps = x.to_list()
+    x.set_msg(', '.join([repr(s) for s in sexps]), color='red')
+    return len(sexps)
 
 
 def isnull(x):
