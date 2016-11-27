@@ -2,7 +2,7 @@ from __future__ import print_function
 
 from vivid_schemer.parser import Parser
 from vivid_schemer.lexer import Lexer
-from vivid_schemer.eval import evaluate, globals
+from vivid_schemer.eval import evaluate, globals, as_repr
 
 import sys
 
@@ -21,9 +21,11 @@ class Play(object):
         self._sexp = parser.form_sexp()
         self._gen = evaluate(self._sexp, globals())
 
-    def next(self, mode='pretty'):
+    def eval(self):
         self._sexp, self._stack, self._envs = next(self._gen)
-        self._show(self._sexp, mode)
+
+    def __repr__(self):
+        return as_repr(self._sexp.value)
 
     def stack(self, mode='pretty'):
         frames = zip(self._stack, self._envs)
@@ -48,7 +50,7 @@ class Play(object):
         return self
 
     def __next__(self):
-        self.next()
+        self.eval()
         return self
 
     @property
